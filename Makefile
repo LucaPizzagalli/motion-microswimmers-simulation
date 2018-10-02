@@ -1,13 +1,13 @@
 COMPILER = g++
-COMPILERFLAGS = -c -Wall -pedantic #-O3
-LINKERFLAGS = -o #-lSDL2 -lSDL2_image -pthread
+COMPILER_FLAGS = -c -Wall -pedantic #-O3
+LINKER_FLAGS = -std=c++0x -lSDL2 -o #-lSDL2_image -pthread -o
 SOURCES = *.cpp
 OBJECTS = $(SOURCES:.cpp=.o)
 
 all: simulation
 
 simulation: $(OBJECTS)
-	$(COMPILER) $(OBJECTS) $(LINKERFLAGS) simulation
+	$(COMPILER) $(OBJECTS) $(LINKER_FLAGS) simulation
 
 $(OBJECTS): $(SOURCES)
-	$(COMPILER) $(COMPILERFLAGS) $(SOURCES)
+	$(COMPILER) $(COMPILER_FLAGS) $(SOURCES)
