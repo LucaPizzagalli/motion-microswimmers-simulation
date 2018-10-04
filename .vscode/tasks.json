@@ -11,7 +11,7 @@
         {
             "label": "make + run",
             "type": "shell",
-            "command": "make && ./simulation",
+            "command": "make && ./bin/simulation",
             "group": {
                 "kind": "build",
                 "isDefault": true

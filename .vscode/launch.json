@@ -9,7 +9,7 @@
             "preLaunchTask": "make",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/simulation",
+            "program": "${workspaceFolder}/bin/simulation",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
