@@ -3,6 +3,7 @@
 
 #include <gsl/gsl_rng.h>
 #include "definition.h"
+#include "diskWall.h"
 #include "bacterium.h"
 
 class Simulation
@@ -12,6 +13,7 @@ class Simulation
     double delta_time_step;
     int time_step;
     Bacterium bacterium;
+    DiskWall disk_wall;
 
 public:
     Simulation(double delta_time_step, int total_time_steps);

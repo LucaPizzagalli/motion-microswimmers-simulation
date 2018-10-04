@@ -7,6 +7,15 @@
             "label": "make",
             "type": "shell",
             "command": "make"
+        },
+        {
+            "label": "make + run",
+            "type": "shell",
+            "command": "make && ./simulation",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
         }
     ]
 }
