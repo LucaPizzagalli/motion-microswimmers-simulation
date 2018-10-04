@@ -5,7 +5,7 @@
 
 int main(int argc, char *argv[])
 {
-    int n_time_steps = 600;
+    int n_time_steps = 1000;
     printf("Hello\n");
     Simulation world(1., n_time_steps);
     for(int i=0; i<n_time_steps-1; ++i)

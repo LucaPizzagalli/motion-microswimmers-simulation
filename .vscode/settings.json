@@ -1,6 +1,8 @@
 {
     "cSpell.words": [
-        "libsdl"
+        "escape",
+        "libsdl",
+        "sdlk"
     ],
     "files.associations": {
         "array": "cpp",

@@ -37,6 +37,6 @@ void Bacterium::draw(int time_step, unsigned char screen_color[SCREEN_HEIGHT][SC
         for(int y=(int)(center_y-this->body_radius); y<=(int)(center_y+this->body_radius)+1; y++)
         {
             double fading = std::max(1-((x-center_x)*(x-center_x)+(y-center_y)*(y-center_y))/(this->body_radius*this->body_radius), 0.);
-		    screen_color[x][y][0] = int(255*fading);
+		    screen_color[x][y][1] = int(255*fading);
         }
 }
