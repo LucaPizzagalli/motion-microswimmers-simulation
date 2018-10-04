@@ -1,25 +1,23 @@
 #ifndef SIMULATION_H
 #define SIMULATION_H
 
-#include <vector>
-
-struct Snapshot
-{
-    double theta; // orientation of the swimmer
-    double x_position; // positions of the swimmer
-    double y_position; // positions of the swimmer
-};
+#include <gsl/gsl_rng.h>
+#include "definition.h"
+#include "bacterium.h"
 
 class Simulation
 {
+    gsl_rng *random_generator;
+
     double delta_time_step;
     int time_step;
-    std::vector<Snapshot> history;
+    Bacterium bacterium;
 
 public:
     Simulation(double delta_time_step, int total_time_steps);
     void compute_next_step();
-    Snapshot get_snapshot(int time_step);
+    void draw_frame(int time_step, unsigned char screen_color[SCREEN_HEIGHT][SCREEN_WIDTH][4]);
+    ~Simulation();
 };
 
 #endif

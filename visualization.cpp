@@ -1,5 +1,7 @@
 #include "visualization.h"
+#include <stdio.h>
 #include <algorithm>
+#include "simulation.h"
 
 Visualization::Visualization()
 {
@@ -17,8 +19,8 @@ Visualization::Visualization()
 	this->texture = SDL_CreateTexture(this->gRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, SCREEN_WIDTH, SCREEN_HEIGHT);
 	if (!this->texture)
 		printf("texture could not be created! SDL Error: %s\n", SDL_GetError());
-	for (int x = 0; x < SCREEN_WIDTH; x++)
-		for (int y = 0; y < SCREEN_HEIGHT; y++)
+	for (int x = 0; x < SCREEN_WIDTH; ++x)
+		for (int y = 0; y < SCREEN_HEIGHT;++y)
 		{
 			screen_color[y][x][0] = 0;
 			screen_color[y][x][1] = 0;
@@ -30,28 +32,26 @@ Visualization::Visualization()
 void Visualization::render(Simulation world, int start_time_step, int end_time_step)
 {
 	int loop_time;
-	Snapshot snapshot;
 	for (int time_step=start_time_step; time_step<end_time_step; time_step++)
 	{
 		loop_time = SDL_GetTicks();
 
-		for (int x = 0; x < SCREEN_WIDTH; x++)
-			for (int y = 0; y < SCREEN_HEIGHT; y++)
+		for (int x = 0; x < SCREEN_WIDTH; ++x)
+			for (int y = 0; y < SCREEN_HEIGHT; ++y)
 			{
 				screen_color[y][x][0] = 0;
 				screen_color[y][x][1] = 0;
 				screen_color[y][x][2] = 0;
 				screen_color[y][x][3] = 255;
 			}
-		snapshot = world.get_snapshot(time_step);
-		screen_color[(int)snapshot.y_position][(int)snapshot.x_position][0] = 255;
+		world.draw_frame(time_step, this->screen_color);
 		
-		SDL_UpdateTexture(texture,NULL,&screen_color[0][0][0],SCREEN_WIDTH * 4);
+		SDL_UpdateTexture(texture, NULL, &screen_color[0][0][0], SCREEN_WIDTH*4);
         SDL_RenderCopy(this->gRenderer, texture, NULL, NULL);
 		SDL_RenderPresent(this->gRenderer);
 
 		loop_time = SDL_GetTicks() - loop_time;
-		SDL_Delay( std::max(60-loop_time, 0));
+		SDL_Delay( std::max(40-loop_time, 0));
 	}
 }
 

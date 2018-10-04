@@ -34,6 +34,13 @@
         "type_traits": "cpp",
         "tuple": "cpp",
         "typeinfo": "cpp",
-        "utility": "cpp"
+        "utility": "cpp",
+        "complex": "cpp",
+        "cstdarg": "cpp",
+        "ctime": "cpp",
+        "iomanip": "cpp",
+        "iostream": "cpp",
+        "cinttypes": "cpp",
+        "algorithm": "cpp"
     }
 }

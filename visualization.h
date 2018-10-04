@@ -1,9 +1,8 @@
 #ifndef VISUALIZATION_H
 #define VISUALIZATION_H
-#define SCREEN_HEIGHT 400
-#define SCREEN_WIDTH 500
 
 #include <SDL2/SDL.h>
+#include "definition.h"
 #include "simulation.h"
 
 class Visualization

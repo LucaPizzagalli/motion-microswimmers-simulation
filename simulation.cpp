@@ -1,34 +1,32 @@
 #include "simulation.h"
-#include <cmath>
+#include <gsl/gsl_randist.h>
 
-Simulation::Simulation(double delta_time_step, int total_time_steps)
+Simulation::Simulation(double delta_time_step, int total_time_steps):
+    bacterium(total_time_steps, 100., 100., 0.)
 {
+    const gsl_rng_type *random_generator_info;
+    
+    gsl_rng_env_setup();
+    random_generator_info = gsl_rng_default;
+    this->random_generator = gsl_rng_alloc (random_generator_info);
+    gsl_rng_set(this->random_generator, 42);
+
     this->delta_time_step = delta_time_step;
-    this->history = std::vector<Snapshot>(total_time_steps);
     this->time_step = 0;
-    this->history[0].x_position = 100.;
-    this->history[0].y_position = 100.;
-    this->history[0].theta = 10.;
 }
 
 void Simulation::compute_next_step()
 {
-    double vel_x, vel_y;
-    Snapshot *now = &(this->history[this->time_step]);
-    Snapshot *next = &(this->history[this->time_step+1]);
-    // generate random numbers using BOOST library
-    // boost::random::normal_distribution<> dist(0, 1);
-
-    // euler scheme
-    next->theta = now->theta + (0.01)*this->delta_time_step;
-    vel_x = cos(now->theta);
-    vel_y = sin(now->theta);
-    next->x_position = now->x_position + vel_x*this->delta_time_step;
-    next->y_position = now->y_position + vel_y*this->delta_time_step;
     this->time_step++;
+    this->bacterium.compute_step(this->time_step, this->delta_time_step, this->random_generator);
 }
 
-Snapshot Simulation::get_snapshot(int time_step)
+void Simulation::draw_frame(int time_step, unsigned char screen_color[SCREEN_HEIGHT][SCREEN_WIDTH][4])
 {
-    return this->history[time_step];
+    this->bacterium.draw(time_step, screen_color);
+}
+
+Simulation::~Simulation()
+{
+    //gsl_rng_free(this->random_generator);
 }
