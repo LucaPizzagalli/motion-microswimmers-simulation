@@ -5,7 +5,8 @@
 
 Bacterium::Bacterium(int total_time_steps, double x_position, double y_position, double theta)
 {
-    this->body_radius = 5;
+    this->body_radius = 2.5; //5 micrometer
+    this->flagella_radius = 5.; //2.5 micrometer
     this->x_position = std::vector<double>(total_time_steps, 0);
     this->y_position = std::vector<double>(total_time_steps, 0);
     this->theta = std::vector<double>(total_time_steps, 0);
@@ -29,14 +30,24 @@ void Bacterium::compute_step(int now, double delta_time_step, gsl_rng *random_ge
     this->y_position[now] = this->y_position[now-1] + vel_y*delta_time_step;
 }
 
-void Bacterium::draw(int time_step, unsigned char screen_color[SCREEN_HEIGHT][SCREEN_WIDTH][4])
+void Bacterium::draw(int time_step, Camera *camera)
 {
-    double center_x = this->y_position[time_step];
-    double center_y = this->x_position[time_step];
-    for(int x=(int)(center_x-this->body_radius); x<=(int)(center_x+this->body_radius)+1; x++)
-        for(int y=(int)(center_y-this->body_radius); y<=(int)(center_y+this->body_radius)+1; y++)
+    double center_x = (this->x_position[time_step] - camera->x) * camera->zoom;
+    double center_y = (this->y_position[time_step] - camera->y) * camera->zoom;
+    double radius =  this->body_radius * camera->zoom;
+    for(int x=(int)(center_x-radius); x<=(int)(center_x+radius)+1; x++)
+        for(int y=(int)(center_y-radius); y<=(int)(center_y+radius)+1; y++)
         {
-            double fading = std::max(1-((x-center_x)*(x-center_x)+(y-center_y)*(y-center_y))/(this->body_radius*this->body_radius), 0.);
-		    screen_color[y][x][1] = int(screen_color[y][x][1]*(1-fading)+255*fading);
+            double fading = std::max(1-((x-center_x)*(x-center_x)+(y-center_y)*(y-center_y))/(radius*radius), 0.);
+		    camera->pixels[y][x][1] = int(camera->pixels[y][x][1]*(1-fading)+255*fading);
+        }
+    center_x += cos(this->theta[time_step])*this->flagella_radius * camera->zoom;
+    center_y += sin(this->theta[time_step])*this->flagella_radius * camera->zoom;
+    radius =  this->flagella_radius * camera->zoom;
+    for(int x=(int)(center_x-radius); x<=(int)(center_x+radius)+1; x++)
+        for(int y=(int)(center_y-radius); y<=(int)(center_y+radius)+1; y++)
+        {
+            double fading = std::max(1-((x-center_x)*(x-center_x)+(y-center_y)*(y-center_y))/(radius*radius), 0.);
+		    camera->pixels[y][x][0] = int(camera->pixels[y][x][0]*(1-fading)+255*fading);
         }
 }

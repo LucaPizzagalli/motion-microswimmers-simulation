@@ -8,6 +8,7 @@
 class Bacterium
 {
     double body_radius;
+    double flagella_radius;
     std::vector<double> x_position; // positions of the swimmer
     std::vector<double> y_position; // positions of the swimmer
     std::vector<double> theta; // orientation of the swimmer
@@ -15,7 +16,7 @@ class Bacterium
 public:
     Bacterium(int total_time_steps, double x_position, double y_position, double theta);
     void compute_step(int now, double delta_time_step, gsl_rng *random_generator);
-    void draw(int time_step, unsigned char screen_color[SCREEN_HEIGHT][SCREEN_WIDTH][4]);
+    void draw(int time_step, Camera *camera);
 };
 
 #endif

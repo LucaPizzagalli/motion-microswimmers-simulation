@@ -12,7 +12,7 @@ class DiskWall
 
 public:
     DiskWall();
-    void draw(int time_step, unsigned char screen_color[SCREEN_HEIGHT][SCREEN_WIDTH][4]);
+    void draw(int time_step, Camera *camera);
 };
 
 #endif

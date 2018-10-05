@@ -19,14 +19,9 @@ Visualization::Visualization()
 	this->texture = SDL_CreateTexture(this->gRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, SCREEN_WIDTH, SCREEN_HEIGHT);
 	if (!this->texture)
 		printf("texture could not be created! SDL Error: %s\n", SDL_GetError());
-	for (int x = 0; x < SCREEN_WIDTH; ++x)
-		for (int y = 0; y < SCREEN_HEIGHT;++y)
-		{
-			screen_color[y][x][0] = 0;
-			screen_color[y][x][1] = 0;
-			screen_color[y][x][2] = 0;
-			screen_color[y][x][3] = 255;
-		}
+	this->camera.x = -SCREEN_WIDTH/2.;
+	this->camera.y = -SCREEN_HEIGHT/2.;
+	this->camera.zoom = 1.;
 }
 
 void Visualization::render(Simulation world, int start_time_step, int end_time_step)
@@ -39,13 +34,13 @@ void Visualization::render(Simulation world, int start_time_step, int end_time_s
 		for (int x = 0; x < SCREEN_WIDTH; ++x)
 			for (int y = 0; y < SCREEN_HEIGHT; ++y)
 			{
-				screen_color[y][x][0] = 0;
-				screen_color[y][x][1] = 0;
-				screen_color[y][x][2] = 0;
-				screen_color[y][x][3] = 255;
+				this->camera.pixels[y][x][0] = 0;
+				this->camera.pixels[y][x][1] = 0;
+				this->camera.pixels[y][x][2] = 0;
+				this->camera.pixels[y][x][3] = 255;
 			}
-		world.draw_frame(time_step, this->screen_color);
-		SDL_UpdateTexture(texture, NULL, &screen_color[0][0][0], SCREEN_WIDTH*4);
+		world.draw_frame(time_step, &this->camera);
+		SDL_UpdateTexture(texture, NULL, &this->camera.pixels[0][0][0], SCREEN_WIDTH*4);
         SDL_RenderCopy(this->gRenderer, texture, NULL, NULL);
 		SDL_RenderPresent(this->gRenderer);
 
@@ -58,10 +53,22 @@ void Visualization::render(Simulation world, int start_time_step, int end_time_s
 			{
 				if(e.key.keysym.sym == SDLK_ESCAPE)
 					return;
+				else if(e.key.keysym.sym == SDLK_PLUS || e.key.keysym.sym == SDLK_KP_PLUS)
+				{
+					camera.zoom *= 1.1;
+					camera.x /= 1.1;
+					camera.y /= 1.1;
+				}
+				else if(e.key.keysym.sym == SDLK_MINUS || e.key.keysym.sym == SDLK_KP_MINUS)
+				{
+					camera.zoom /= 1.1;
+					camera.x *= 1.1;
+					camera.y *= 1.1;
+				}
 			}
 		}
 		loop_time = SDL_GetTicks() - loop_time;
-		SDL_Delay( std::max(5-loop_time, 0));
+		SDL_Delay( std::max(150-loop_time, 0));
 	}
 }
 

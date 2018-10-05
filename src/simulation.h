@@ -18,7 +18,7 @@ class Simulation
 public:
     Simulation(double delta_time_step, int total_time_steps);
     void compute_next_step();
-    void draw_frame(int time_step, unsigned char screen_color[SCREEN_HEIGHT][SCREEN_WIDTH][4]);
+    void draw_frame(int time_step, Camera *camera);
     ~Simulation();
 };
 

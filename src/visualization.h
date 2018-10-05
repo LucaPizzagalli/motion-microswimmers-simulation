@@ -10,7 +10,7 @@ class Visualization
     SDL_Window *gWindow;
 	SDL_Renderer *gRenderer;
 	SDL_Texture *texture;
-	unsigned char screen_color[SCREEN_HEIGHT][SCREEN_WIDTH][4];
+    Camera camera;
 
 public:
     Visualization();
