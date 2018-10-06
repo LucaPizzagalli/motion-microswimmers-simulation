@@ -19,9 +19,9 @@ Visualization::Visualization()
 	this->texture = SDL_CreateTexture(this->gRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, SCREEN_WIDTH, SCREEN_HEIGHT);
 	if (!this->texture)
 		printf("texture could not be created! SDL Error: %s\n", SDL_GetError());
-	this->camera.x = -SCREEN_WIDTH/2.;
-	this->camera.y = -SCREEN_HEIGHT/2.;
 	this->camera.zoom = 1.;
+	this->camera.x = -SCREEN_WIDTH/2./this->camera.zoom;
+	this->camera.y = -SCREEN_HEIGHT/2./this->camera.zoom;
 }
 
 void Visualization::render(Simulation world, int start_time_step, int end_time_step)
@@ -68,7 +68,7 @@ void Visualization::render(Simulation world, int start_time_step, int end_time_s
 			}
 		}
 		loop_time = SDL_GetTicks() - loop_time;
-		SDL_Delay( std::max(150-loop_time, 0));
+		SDL_Delay( std::max(20-loop_time, 0));
 	}
 }
 

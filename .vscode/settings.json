@@ -43,6 +43,10 @@
         "iomanip": "cpp",
         "iostream": "cpp",
         "cinttypes": "cpp",
-        "algorithm": "cpp"
+        "algorithm": "cpp",
+        "chrono": "cpp",
+        "memory": "cpp",
+        "ratio": "cpp",
+        "thread": "cpp"
     }
 }

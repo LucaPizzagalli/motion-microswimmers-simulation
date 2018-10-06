@@ -10,7 +10,7 @@ Simulation::Simulation(double delta_time_step, int total_time_steps):
     gsl_rng_env_setup();
     random_generator_info = gsl_rng_default;
     this->random_generator = gsl_rng_alloc (random_generator_info);
-    gsl_rng_set(this->random_generator, 41);
+    gsl_rng_set(this->random_generator, 44);
 
     this->delta_time_step = delta_time_step;
     this->time_step = 0;
@@ -19,7 +19,8 @@ Simulation::Simulation(double delta_time_step, int total_time_steps):
 void Simulation::compute_next_step()
 {
     this->time_step++;
-    this->bacterium.compute_step(this->time_step, this->delta_time_step, this->random_generator);
+    Force force = this->disk_wall.force_acting_on(this->time_step, this->bacterium);
+    this->bacterium.compute_step(this->time_step, this->delta_time_step, force, this->random_generator);
 }
 
 void Simulation::draw_frame(int time_step, Camera *camera)
