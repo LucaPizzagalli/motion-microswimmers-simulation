@@ -7,7 +7,7 @@ Bacterium::Bacterium(int total_time_steps, double center_x, double center_y, dou
 {
     this->body_radius = 2.5; //5 micrometer
     this->flagella_radius = 5.; //2.5 micrometer
-    this->speed = 100.; //100 micrometer/second
+    this->speed = 300.; //100 micrometer/second
     this->tumble_mean_time = 2.; // 2 seconds = tau_p/(k_b*T)
     this->tumble_mean_strength = M_PI_2; //pi/2 radiants
     this->tumble_std_strength = 0.1; //0.1 radiants
@@ -34,7 +34,7 @@ void Bacterium::compute_step(int now, double delta_time_step, Force force, gsl_r
 
     // d_r/d_t = speed*e + mu*F_tot + nu
     // d_center_x/d_t = speed * e_x + mu*F_tot_x + nu_x
-    
+
 
 
     // d_e/d_t = (Tw/tau_w + epsilon) cross_product e
@@ -42,9 +42,11 @@ void Bacterium::compute_step(int now, double delta_time_step, Force force, gsl_r
     this->theta[now] = this->theta[now-1] + 7.2*k*delta_time_step;
     vel_x = cos(this->theta[now]) * this->speed;
     vel_y = sin(this->theta[now]) * this->speed;
-    printf("%f %f\n",force.x,force.y);
-    this->center_x[now] = this->center_x[now-1] + (vel_x+force.x)*delta_time_step;
-    this->center_y[now] = this->center_y[now-1] + (vel_y+force.y)*delta_time_step;
+
+    double force_noise_x = gsl_ran_gaussian(random_generator, 22.361);
+    double force_noise_y = gsl_ran_gaussian(random_generator, 22.361); // std nu = sqrt(2 * 250 micrometers^2/seconds)
+    this->center_x[now] = this->center_x[now-1] + (vel_x+force.x+force_noise_x)*delta_time_step;
+    this->center_y[now] = this->center_y[now-1] + (vel_y+force.y+force_noise_y)*delta_time_step;
 
     // tumble
     this->tumble_countdown[now] = this->tumble_countdown[now-1] - delta_time_step;
@@ -80,7 +82,7 @@ double Bacterium::getFlagellaX(int time_step)
 }
 double Bacterium::getFlagellaY(int time_step)
 {
-    return this->center_x[time_step] + sin(this->theta[time_step])*this->flagella_radius;
+    return this->center_y[time_step] + sin(this->theta[time_step])*this->flagella_radius;
 }
 
 void Bacterium::draw(int time_step, Camera *camera)
@@ -94,6 +96,8 @@ void Bacterium::draw(int time_step, Camera *camera)
             double fading = std::max(1-((x-center_x)*(x-center_x)+(y-center_y)*(y-center_y))/(radius*radius), 0.);
 		    camera->pixels[y][x][1] = int(camera->pixels[y][x][1]*(1-fading)+255*fading);
         }
+    double prova = sin(this->theta[time_step]);
+    double prova2 = cos(this->theta[time_step]);
     center_x += cos(this->theta[time_step])*this->flagella_radius * camera->zoom;
     center_y += sin(this->theta[time_step])*this->flagella_radius * camera->zoom;
     radius =  this->flagella_radius * camera->zoom;
