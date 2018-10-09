@@ -14,7 +14,7 @@ class Visualization
 
 public:
     Visualization();
-    void render(Simulation world, int start_time_step, int end_time_step);
+    void render(Simulation world, int start_time_step, int end_time_step, int step_size);
     ~Visualization();
 };
 

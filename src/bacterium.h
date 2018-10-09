@@ -17,6 +17,8 @@ class Bacterium
     std::vector<double> center_x; // positions of the swimmer
     std::vector<double> center_y; // positions of the swimmer
     std::vector<double> theta; // orientation of the swimmer
+    std::vector<double> direction_x; // orientation of the swimmer
+    std::vector<double> direction_y; // orientation of the swimmer
     std::vector<double> tumble_countdown; // time left before next tumble
 
 public:

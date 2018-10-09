@@ -12,8 +12,8 @@ class Simulation
 
     double delta_time_step;
     int time_step;
-    Bacterium bacterium;
-    DiskWall disk_wall;
+    Bacterium *bacterium;
+    DiskWall *disk_wall;
 
 public:
     Simulation(double delta_time_step, int total_time_steps);

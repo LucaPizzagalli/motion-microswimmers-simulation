@@ -1,6 +1,7 @@
 #ifndef DISKWALL_H
 #define DISKWALL_H
 
+#include <memory>
 #include "definition.h"
 #include "bacterium.h"
 
@@ -13,7 +14,7 @@ class DiskWall
 
 public:
     DiskWall();
-    Force force_acting_on(int now, Bacterium bacterium);
+    Force force_acting_on(int now, Bacterium *bacterium);
     void draw(int time_step, Camera *camera);
 };
 

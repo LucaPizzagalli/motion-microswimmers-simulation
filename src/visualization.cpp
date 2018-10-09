@@ -24,10 +24,10 @@ Visualization::Visualization()
 	this->camera.y = -SCREEN_HEIGHT/2./this->camera.zoom;
 }
 
-void Visualization::render(Simulation world, int start_time_step, int end_time_step)
+void Visualization::render(Simulation world, int start_time_step, int end_time_step, int step_size)
 {
 	int loop_time;
-	for (int time_step=start_time_step; time_step<end_time_step; time_step++)
+	for (int time_step=start_time_step; time_step<end_time_step; time_step+=step_size)
 	{
 		loop_time = SDL_GetTicks();
 
@@ -68,7 +68,7 @@ void Visualization::render(Simulation world, int start_time_step, int end_time_s
 			}
 		}
 		loop_time = SDL_GetTicks() - loop_time;
-		SDL_Delay( std::max(20-loop_time, 0));
+		SDL_Delay( std::max(10-loop_time, 0));
 	}
 }
 

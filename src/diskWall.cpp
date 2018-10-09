@@ -10,14 +10,14 @@ DiskWall::DiskWall()
     this->outside_radius = this->inside_radius + 5.;
 }
 
-Force DiskWall::force_acting_on(int now, Bacterium bacterium)
+Force DiskWall::force_acting_on(int now, Bacterium *bacterium)
 {
     double x, y;
     double body_e_x, body_e_y, force_body_modulus;
     double flagella_e_x, flagella_e_y, force_flagella_modulus;
 
-    x = bacterium.getBodyX(now-1) - this->center_x;
-    y = bacterium.getBodyY(now-1) - this->center_y;
+    x = bacterium->getBodyX(now-1) - this->center_x;
+    y = bacterium->getBodyY(now-1) - this->center_y;
     double body_distance = sqrt(x*x + y*y);
     if(body_distance != 0)
     {
@@ -25,7 +25,7 @@ Force DiskWall::force_acting_on(int now, Bacterium bacterium)
         body_e_y = -y/body_distance;
         body_distance = this->inside_radius - body_distance;
 
-        force_body_modulus = 24 * 10. * 250. * (-2*pow(bacterium.getBodyRadius(now-1), 12.)/pow(body_distance, 13.) + pow(bacterium.getBodyRadius(now-1), 6.)/pow(body_distance, 7.) );
+        force_body_modulus = 24 * 10. * ( -2*pow(bacterium->getBodyRadius(now-1), 12.)/pow(body_distance, 13.) + pow(bacterium->getBodyRadius(now-1), 6.)/pow(body_distance, 7.) );
     }
     else
     {
@@ -34,8 +34,8 @@ Force DiskWall::force_acting_on(int now, Bacterium bacterium)
         force_body_modulus = 0;
     }
     
-    x = bacterium.getFlagellaX(now-1) - this->center_x;
-    y = bacterium.getFlagellaY(now-1) - this->center_y;
+    x = bacterium->getFlagellaX(now-1) - this->center_x;
+    y = bacterium->getFlagellaY(now-1) - this->center_y;
     double flagella_distance = sqrt(x*x + y*y);
     if(flagella_distance != 0)
     {
@@ -43,7 +43,7 @@ Force DiskWall::force_acting_on(int now, Bacterium bacterium)
         flagella_e_y = -y/flagella_distance;
         flagella_distance = this->inside_radius - flagella_distance;
 
-        force_flagella_modulus = 24 * 10. * 250. * (-2*pow(bacterium.getFlagellaRadius(now-1), 12.)/pow(flagella_distance, 13.) + pow(bacterium.getFlagellaRadius(now-1), 6.)/pow(flagella_distance, 7.) );
+        force_flagella_modulus = 24 * 10. * (-2*pow(bacterium->getFlagellaRadius(now-1), 12.)/pow(flagella_distance, 13.) + pow(bacterium->getFlagellaRadius(now-1), 6.)/pow(flagella_distance, 7.) );
     }
     else
     {
@@ -52,12 +52,7 @@ Force DiskWall::force_acting_on(int now, Bacterium bacterium)
         force_flagella_modulus = 0;
     }
 
-    Force force = {force_body_modulus*body_e_x+force_flagella_modulus*flagella_e_x, force_body_modulus*body_e_y+force_flagella_modulus*flagella_e_y};
-
-    printf("d: %f %f\n",body_distance,flagella_distance);
-    printf("f: %f %f\n",force_body_modulus,force_flagella_modulus);
-    printf("%f %f\n",force.x,force.y);
-    return force;
+    return Force{force_body_modulus*body_e_x+force_flagella_modulus*flagella_e_x, force_body_modulus*body_e_y+force_flagella_modulus*flagella_e_y};
 }
 // potential:
 // eta = 10
