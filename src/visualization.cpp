@@ -65,6 +65,10 @@ void Visualization::render(Simulation world, int start_time_step, int end_time_s
 					camera.x *= 1.1;
 					camera.y *= 1.1;
 				}
+				else if(e.key.keysym.sym == SDLK_o)
+					step_size--;
+				else if(e.key.keysym.sym == SDLK_p)
+					step_size++;
 			}
 		}
 		loop_time = SDL_GetTicks() - loop_time;

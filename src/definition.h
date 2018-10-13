@@ -1,5 +1,5 @@
-#define SCREEN_HEIGHT 400
-#define SCREEN_WIDTH 400
+#define SCREEN_HEIGHT 600
+#define SCREEN_WIDTH 600
 
 #ifndef DEFINITION_H
 #define DEFINITION_H

@@ -11,6 +11,7 @@ class DiskWall
     double center_y;
     double inside_radius;
     double outside_radius;
+    double epsilon;
 
 public:
     DiskWall();

@@ -16,13 +16,11 @@ class Bacterium
     
     std::vector<double> center_x; // positions of the swimmer
     std::vector<double> center_y; // positions of the swimmer
-    std::vector<double> theta; // orientation of the swimmer
-    std::vector<double> direction_x; // orientation of the swimmer
-    std::vector<double> direction_y; // orientation of the swimmer
+    std::vector<double> direction; // orientation of the swimmer
     std::vector<double> tumble_countdown; // time left before next tumble
 
 public:
-    Bacterium(int total_time_steps, double x_position, double y_position, double theta);
+    Bacterium(int total_time_steps, double x_position, double y_position, double direction);
     void compute_step(int now, double delta_time_step, Force force, gsl_rng *random_generator);
     double getBodyRadius(int time_step);
     double getFlagellaRadius(int time_step);
