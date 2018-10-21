@@ -13,12 +13,13 @@ DiskWall::DiskWall()
 
 Force DiskWall::force_acting_on(int now, Bacterium *bacterium)
 {
+
     double x, y;
     double body_e_x, body_e_y, force_body_modulus;
     double flagella_e_x, flagella_e_y, force_flagella_modulus;
 
-    x = bacterium->getBodyX(now-1) - this->center_x;
-    y = bacterium->getBodyY(now-1) - this->center_y;
+    x = bacterium->get_body_x(now-1) - this->center_x;
+    y = bacterium->get_body_y(now-1) - this->center_y;
     double body_distance = sqrt(x*x + y*y);
     if(body_distance > 0)
     {
@@ -26,9 +27,9 @@ Force DiskWall::force_acting_on(int now, Bacterium *bacterium)
         body_e_y = -y / body_distance;
         body_distance = this->inside_radius - body_distance;
 
-        double rad_6 = pow(bacterium->getBodyRadius(now-1), 6.);
+        double rad_6 = pow(bacterium->get_body_radius(now-1), 6.);
         double dist_6 = pow(body_distance, 6.);
-        force_body_modulus = 24 * this->epsilon * (-2*rad_6*rad_6/(dist_6*dist_6*body_distance) + rad_6/(dist_6*body_distance));
+        force_body_modulus = 24 * this->epsilon * (2*rad_6*rad_6/(dist_6*dist_6*body_distance) - rad_6/(dist_6*body_distance));
     }
     else
     {
@@ -37,8 +38,8 @@ Force DiskWall::force_acting_on(int now, Bacterium *bacterium)
         force_body_modulus = 0;
     }
     
-    x = bacterium->getFlagellaX(now-1) - this->center_x;
-    y = bacterium->getFlagellaY(now-1) - this->center_y;
+    x = bacterium->get_flagella_x(now-1) - this->center_x;
+    y = bacterium->get_flagella_y(now-1) - this->center_y;
     double flagella_distance = sqrt(x*x + y*y);
     if(flagella_distance != 0)
     {
@@ -46,9 +47,9 @@ Force DiskWall::force_acting_on(int now, Bacterium *bacterium)
         flagella_e_y = -y / flagella_distance;
         flagella_distance = this->inside_radius - flagella_distance;
 
-        double rad_6 = bacterium->getFlagellaRadius(now-1);
+        double rad_6 = bacterium->get_flagella_radius(now-1);
         double dist_6 = pow(flagella_distance, 6.);
-        force_flagella_modulus = 24 * this->epsilon * (-2*rad_6*rad_6/(dist_6*dist_6*flagella_distance) + rad_6/(dist_6*flagella_distance));
+        force_flagella_modulus = 24 * this->epsilon * (2*rad_6*rad_6/(dist_6*dist_6*flagella_distance) - rad_6/(dist_6*flagella_distance));
     }
     else
     {

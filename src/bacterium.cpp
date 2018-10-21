@@ -28,8 +28,7 @@ void Bacterium::compute_step(int now, double delta_time_step, Force force, gsl_r
     double sin_direction = sin(direction[now-1]);
     double cos_direction = cos(direction[now-1]);
 
-    double torque_z = -1* ///boh
-    this->flagella_radius*(cos_direction*force.y - sin_direction*force.x);
+    double torque_z = -1*this->flagella_radius*(cos_direction*force.y - sin_direction*force.x);
     double torque_noise_z = gsl_ran_gaussian(random_generator, 1.)*1.; // sqrt(2*1/2) = 1.
 
     this->direction[now] = this->direction[now-1] - 3.333*torque_z*delta_time_step - torque_noise_z*sqrt_delta_time_step;
@@ -40,40 +39,55 @@ void Bacterium::compute_step(int now, double delta_time_step, Force force, gsl_r
     this->center_x[now] = this->center_x[now-1] + (cos_direction*this->speed + 250.*force.x)*delta_time_step + cos_direction*force_noise_x*sqrt_delta_time_step;
     this->center_y[now] = this->center_y[now-1] + (sin_direction*this->speed + 250.*force.y)*delta_time_step + sin_direction*force_noise_y*sqrt_delta_time_step;
 
+
     // tumble
-    this->tumble_countdown[now] = this->tumble_countdown[now-1] - delta_time_step;
-    if(this->tumble_countdown[now] <= 0)
-    {
-        double tumble_strength = this->tumble_mean_strength + gsl_ran_gaussian(random_generator, this->tumble_std_strength);
-        tumble_strength *= (int)gsl_rng_uniform_int(random_generator, 2)*2-1;
-        this->direction[now] += tumble_strength;
-        this->tumble_countdown[now] = gsl_ran_exponential(random_generator, this->tumble_mean_time);
-    }
+    // this->tumble_countdown[now] = this->tumble_countdown[now-1] - delta_time_step;
+    // if(this->tumble_countdown[now] <= 0)
+    // {
+    //     double tumble_strength = this->tumble_mean_strength + gsl_ran_gaussian(random_generator, this->tumble_std_strength);
+    //     tumble_strength *= (int)gsl_rng_uniform_int(random_generator, 2)*2-1;
+    //     this->direction[now] += tumble_strength;
+    //     this->tumble_countdown[now] = gsl_ran_exponential(random_generator, this->tumble_mean_time);
+    // }
 }
 
-double Bacterium::getBodyRadius(int time_step)
+double Bacterium::get_body_radius(int time_step)
 {
     return this->body_radius;
 }
-double Bacterium::getFlagellaRadius(int time_step)
+double Bacterium::get_flagella_radius(int time_step)
 {
     return this->flagella_radius;
 }
-double Bacterium::getBodyX(int time_step)
+double Bacterium::get_body_x(int time_step)
 {
     return this->center_x[time_step];
 }
-double Bacterium::getBodyY(int time_step)
+double Bacterium::get_body_y(int time_step)
 {
     return this->center_y[time_step];
 }
-double Bacterium::getFlagellaX(int time_step)
+double Bacterium::get_flagella_x(int time_step)
 {
     return this->center_x[time_step] + cos(this->direction[time_step])*this->flagella_radius;
 }
-double Bacterium::getFlagellaY(int time_step)
+double Bacterium::get_flagella_y(int time_step)
 {
     return this->center_y[time_step] + sin(this->direction[time_step])*this->flagella_radius;
+}
+std::vector<double> Bacterium::get_history_body_x(int start_time_step, int end_time_step)
+{
+    std::vector<double>::const_iterator first = this->center_x.begin() + start_time_step;
+    std::vector<double>::const_iterator last = this->center_x.begin() + end_time_step;
+    std::vector<double> newVec(first, last);
+    return newVec;
+}
+std::vector<double> Bacterium::get_history_body_y(int start_time_step, int end_time_step)
+{
+    std::vector<double>::const_iterator first = this->center_y.begin() + start_time_step;
+    std::vector<double>::const_iterator last = this->center_y.begin() + end_time_step;
+    std::vector<double> newVec(first, last);
+    return newVec;
 }
 
 void Bacterium::draw(int time_step, Camera *camera)

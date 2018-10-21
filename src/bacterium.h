@@ -22,12 +22,14 @@ class Bacterium
 public:
     Bacterium(int total_time_steps, double x_position, double y_position, double direction);
     void compute_step(int now, double delta_time_step, Force force, gsl_rng *random_generator);
-    double getBodyRadius(int time_step);
-    double getFlagellaRadius(int time_step);
-    double getBodyX(int time_step);
-    double getBodyY(int time_step);
-    double getFlagellaX(int time_step);
-    double getFlagellaY(int time_step);
+    double get_body_radius(int time_step);
+    double get_flagella_radius(int time_step);
+    double get_body_x(int time_step);
+    double get_body_y(int time_step);
+    double get_flagella_x(int time_step);
+    double get_flagella_y(int time_step);
+    std::vector<double> get_history_body_x(int start_time_step, int end_time_step);
+    std::vector<double> get_history_body_y(int start_time_step, int end_time_step);
     void draw(int time_step, Camera *camera);
 };
 

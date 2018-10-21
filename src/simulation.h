@@ -16,8 +16,10 @@ class Simulation
     DiskWall *disk_wall;
 
 public:
-    Simulation(double delta_time_step, int total_time_steps);
+    Simulation(double delta_time_step, int total_time_steps, gsl_rng *random_generator);
     void compute_next_step();
+    double get_delta_time_step();
+    Bacterium* get_bacterium();
     void draw_frame(int time_step, Camera *camera);
     ~Simulation();
 };

@@ -2,15 +2,9 @@
 #include <cmath>
 #include <gsl/gsl_randist.h>
 
-Simulation::Simulation(double delta_time_step, int total_time_steps)
+Simulation::Simulation(double delta_time_step, int total_time_steps, gsl_rng *random_generator)
 {
-    const gsl_rng_type *random_generator_info;
-    
-    gsl_rng_env_setup();
-    random_generator_info = gsl_rng_default;
-    this->random_generator = gsl_rng_alloc (random_generator_info);
-    gsl_rng_set(this->random_generator, 44);
-
+    this->random_generator = random_generator;
     this->disk_wall = new DiskWall();
     this->bacterium = new Bacterium(total_time_steps, gsl_ran_gaussian(random_generator, 10.), gsl_ran_gaussian(random_generator, 10.), gsl_ran_flat(this->random_generator, -M_PI, M_PI));
 
@@ -23,6 +17,16 @@ void Simulation::compute_next_step()
     this->time_step++;
     Force force = this->disk_wall->force_acting_on(this->time_step, this->bacterium);
     this->bacterium->compute_step(this->time_step, this->delta_time_step, force, this->random_generator);
+}
+
+Bacterium* Simulation::get_bacterium()
+{
+    return this->bacterium;
+}
+
+double Simulation::get_delta_time_step()
+{
+    return this->delta_time_step;
 }
 
 void Simulation::draw_frame(int time_step, Camera *camera)
