@@ -99,9 +99,9 @@ void Visualization::render(Simulation *world, int start_time_step, int end_time_
 					camera.y *= 1.1;
 				}
 				else if(e.key.keysym.sym == SDLK_o)
-					step_size--;
+					step_size = (int)(step_size/1.2) - 1;
 				else if(e.key.keysym.sym == SDLK_p)
-					step_size++;
+					step_size = (int)(step_size*1.2) + 1;
 			}
 		}
 		loop_time = SDL_GetTicks() - loop_time;

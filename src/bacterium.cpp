@@ -41,14 +41,14 @@ void Bacterium::compute_step(int now, double delta_time_step, Force force, gsl_r
 
 
     // tumble
-    // this->tumble_countdown[now] = this->tumble_countdown[now-1] - delta_time_step;
-    // if(this->tumble_countdown[now] <= 0)
-    // {
-    //     double tumble_strength = this->tumble_mean_strength + gsl_ran_gaussian(random_generator, this->tumble_std_strength);
-    //     tumble_strength *= (int)gsl_rng_uniform_int(random_generator, 2)*2-1;
-    //     this->direction[now] += tumble_strength;
-    //     this->tumble_countdown[now] = gsl_ran_exponential(random_generator, this->tumble_mean_time);
-    // }
+    this->tumble_countdown[now] = this->tumble_countdown[now-1] - delta_time_step;
+    if(this->tumble_countdown[now] <= 0)
+    {
+        double tumble_strength = this->tumble_mean_strength + gsl_ran_gaussian(random_generator, this->tumble_std_strength);
+        tumble_strength *= (int)gsl_rng_uniform_int(random_generator, 2)*2-1;
+        this->direction[now] += tumble_strength;
+        this->tumble_countdown[now] = gsl_ran_exponential(random_generator, this->tumble_mean_time);
+    }
 }
 
 double Bacterium::get_body_radius(int time_step)
@@ -107,9 +107,9 @@ void Bacterium::draw(int time_step, Camera *camera)
     for(int x=(int)(center_x-radius); x<=(int)(center_x+radius)+1; x++)
         for(int y=(int)(center_y-radius); y<=(int)(center_y+radius)+1; y++)
         {
-            int color = (int)(255*std::max(0., 1-this->tumble_countdown[time_step]));
+            int color = (int)(255*std::max(0., 1-this->tumble_countdown[time_step]/this->tumble_mean_time));
             double fading = std::max(1-((x-center_x)*(x-center_x)+(y-center_y)*(y-center_y))/(radius*radius), 0.);
-		    camera->pixels[y][x][0] = int(camera->pixels[y][x][0]*(1-fading)+255*fading);
+		    camera->pixels[y][x][0] = int(camera->pixels[y][x][0]*(1-fading)+(255-color)*fading);
             camera->pixels[y][x][2] = int(camera->pixels[y][x][2]*(1-fading)+color*fading);
         }
 }
