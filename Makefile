@@ -2,7 +2,7 @@ COMPILER = g++
 COMPILER_FLAGS = -ggdb -std=c++0x -Wall -pedantic -I/usr/local/include#-O3 for release #-ggdb for debug
 LINKER_FLAGS = -ggdb -std=c++0x -L/usr/local/lib -lgsl -lgslcblas -lm -lSDL2 -lSDL2_ttf #-O3 for release #-ggdb for debug #-lSDL2_image -pthread
 SOURCES = src/*.cpp
-OBJECTS := ${subst src/,obj/,$(SOURCES:.cpp=.o)}
+OBJECTS := ${subst src/,,$(SOURCES:.cpp=.o)}
 
 all: bin/simulation
 
@@ -11,4 +11,3 @@ bin/simulation: $(OBJECTS)
 
 $(OBJECTS): $(SOURCES) $(SOURCES:.cpp=h)
 	$(COMPILER) -c $(SOURCES) $(COMPILER_FLAGS)
-	mv ./*.o ./obj

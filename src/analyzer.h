@@ -1,16 +1,13 @@
 #ifndef ANALYZER_H
 #define ANALYZER_H
 
-#define MAP_X 100
-#define MAP_Y 100
-
 #include "definition.h"
 #include "simulation.h"
 #include <array>
 
 class Analyzer
 {
-    std::array<std::array<double, MAP_X>, MAP_Y> probability_map;
+    std::vector <std::vector <double> > probability_map;
     int n_map_points;
 
 public:

@@ -10,14 +10,20 @@ class Bacterium
     double body_radius;
     double flagella_radius;
     double speed;
-    double tumble_mean_time;
     double tumble_mean_strength;
     double tumble_std_strength;
+    double tumble_time_mean;
+    double tumble_speed_mean;
+    double tumble_speed_std;
+    double tumble_duration_mean;
+    double tumble_duration_std;
     
     std::vector<double> center_x; // positions of the swimmer
     std::vector<double> center_y; // positions of the swimmer
     std::vector<double> direction; // orientation of the swimmer
     std::vector<double> tumble_countdown; // time left before next tumble
+    std::vector<double> tumble_speed;
+    std::vector<double> tumble_duration;
 
 public:
     Bacterium(int total_time_steps, double x_position, double y_position, double direction);

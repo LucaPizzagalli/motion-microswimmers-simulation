@@ -3,6 +3,9 @@
 
 #include "bacterium.h"
 
+#define MAP_X 1000
+#define MAP_Y 1000
+
 Analyzer::Analyzer()
 {
     this->reset_probability_map();
@@ -10,9 +13,7 @@ Analyzer::Analyzer()
 
 void Analyzer::reset_probability_map()
 {
-    for(int x=0; x<MAP_X; x++)
-        for(int y=0; y<MAP_Y; y++)
-            this->probability_map[x][y] = 0;
+    this->probability_map = std::vector<std::vector<double>>(MAP_X, std::vector<double>(MAP_Y, 0));
     this->n_map_points = 0;
 }
 
@@ -20,13 +21,14 @@ void Analyzer::compute_probability_map(Simulation *world, int start_time_step, i
 {
     double size_cell_x = (right_x - left_x)/MAP_X;
     double size_cell_y = (bottom_y - top_y)/MAP_Y;
-
-    std::vector<double> bacterium_x = world->get_bacterium()->get_history_body_x(start_time_step, end_time_step);
-    std::vector<double> bacterium_y = world->get_bacterium()->get_history_body_y(start_time_step, end_time_step);
     
-    for(int i=0; i< end_time_step-start_time_step; i++)
-        if(bacterium_x[i]>left_x && bacterium_x[i]<right_x && bacterium_y[i]>top_y && bacterium_y[i]<bottom_y)
-            this->probability_map[(int)((bacterium_x[i]-left_x)/size_cell_x)][(int)((bacterium_y[i]-top_y)/size_cell_y)] += 1;
+    for(int time=start_time_step; time<end_time_step; time++)
+    {
+        double x = world->get_bacterium()->get_body_x(time);
+        double y = world->get_bacterium()->get_body_y(time);
+        if(x>left_x && x<right_x && y>top_y && y<bottom_y)
+            this->probability_map[(int)((x-left_x)/size_cell_x)][(int)((y-top_y)/size_cell_y)]++;
+    }
     this->n_map_points += end_time_step-start_time_step;
 }
 

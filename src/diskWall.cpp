@@ -27,7 +27,10 @@ Force DiskWall::force_acting_on(int now, Bacterium *bacterium)
         body_distance = this->inside_radius - body_distance;
 
         if (body_distance <= 0)
-            printf("Error body distance\n");
+        {
+            printf("Error body distance %d\n", now);
+            throw "Error";
+        }
         else if (body_distance < bacterium->get_body_radius(now - 1) * 1.122462) // 2^(1/6)
         {
             double rad_6 = pow(bacterium->get_body_radius(now - 1), 6.);
@@ -46,6 +49,7 @@ Force DiskWall::force_acting_on(int now, Bacterium *bacterium)
 
     x = bacterium->get_flagella_x(now - 1) - this->center_x;
     y = bacterium->get_flagella_y(now - 1) - this->center_y;
+
     double flagella_distance = sqrt(x * x + y * y);
     if (flagella_distance != 0)
     {
@@ -53,12 +57,16 @@ Force DiskWall::force_acting_on(int now, Bacterium *bacterium)
         flagella_e_y = -y / flagella_distance;
         flagella_distance = this->inside_radius - flagella_distance;
         if (flagella_distance <= 0)
-            printf("Error flagella distance\n");
+        {
+            printf("Error flagella distance %d\n", now);
+            throw "Error";
+        }
         else if (flagella_distance < bacterium->get_flagella_radius(now - 1) * 1.122462) // 2^(1/6)
         {
             double rad_6 = pow(bacterium->get_flagella_radius(now - 1), 6.);
             double dist_6 = pow(flagella_distance, 6.);
             force_flagella_modulus = 24 * this->epsilon * (2 * rad_6 * rad_6 / (dist_6 * dist_6 * flagella_distance) - rad_6 / (dist_6 * flagella_distance));
+            force_flagella_modulus = std::min(1000., force_flagella_modulus);
         }
         else
             force_flagella_modulus = 0;
