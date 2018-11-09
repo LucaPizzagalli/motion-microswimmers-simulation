@@ -121,3 +121,13 @@ void Bacterium::draw(int time_step, Camera *camera)
             }
         }
 }
+
+Bacterium::~Bacterium()
+{
+    // this->center_x.clear();
+    // this->center_y.clear();
+    // this->direction.clear();
+    // this->tumble_countdown.clear();
+    // this->tumble_speed.clear();
+    // this->tumble_duration.clear();
+}

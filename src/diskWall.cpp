@@ -2,11 +2,11 @@
 #include <cmath>
 #include <algorithm>
 
-DiskWall::DiskWall()
+DiskWall::DiskWall(double radius)
 {
     this->center_x = 0.;
     this->center_y = 0.;
-    this->inside_radius = 100.; //25 50 100 150 500 micrometers
+    this->inside_radius = radius;
     this->outside_radius = this->inside_radius + 5.;
     this->epsilon = 10.; // who knows why
 }

@@ -54,16 +54,6 @@ double Analyzer::count_occurrences(double radius)
 
 void Analyzer::compute_radial_probability(double radius)
 {
-    // gsl_integration_workspace *integration_workspace = gsl_integration_workspace_alloc(1e4);
-    // double integral, error;
-    // gsl_function F;
-    // F.function = (double (*)(double, void *)) & wrap_count_occurrences;
-    // F.params = this;
-    // gsl_integration_qag(&F, delta_r, radius, 0, 1e-4, 1e4, 1, integration_workspace, &integral, &error);
-    // //integral = 100;
-    // printf("integral = % .18f\n", integral);
-    // gsl_integration_workspace_free(integration_workspace);
-
     double d_r = radius * 2 / MAP_X;
     this->radial_probability_r = std::vector<double>(MAP_X / 2, 0);
     this->radial_probability_p = std::vector<double>(MAP_X / 2, 0);

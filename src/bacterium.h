@@ -37,6 +37,7 @@ public:
     std::vector<double> get_history_body_x(int start_time_step, int end_time_step);
     std::vector<double> get_history_body_y(int start_time_step, int end_time_step);
     void draw(int time_step, Camera *camera);
+    ~Bacterium();
 };
 
 #endif

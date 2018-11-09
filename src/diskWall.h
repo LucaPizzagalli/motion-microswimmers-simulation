@@ -14,7 +14,7 @@ class DiskWall
     double epsilon;
 
 public:
-    DiskWall();
+    DiskWall(double radius);
     Force force_acting_on(int now, Bacterium *bacterium);
     void draw(int time_step, Camera *camera);
 };

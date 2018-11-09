@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import math
 from scipy.optimize import curve_fit
+import glob
 
 def my_distribution_func(x, alpha, gamma=1):
     return alpha**(gamma+1)/math.gamma(gamma+1)*x**gamma*math.e**(-alpha*x)
@@ -29,7 +30,6 @@ def plot_my_distribution():
     my_distribution = [my_distribution_func(point, *params) for point in points]
     plt.plot(points, my_distribution)
     plt.show()
-    #plt.savefig('images/'+ name + filename[13:-4] + '.png', bbox_inches='tight')
 
 
 def plot_force():
@@ -43,17 +43,17 @@ def plot_force():
     plt.show()
 
 
-def plot_radial_probability():
-    radialProbability = np.loadtxt('radial_probability.csv', delimiter=',')
+def plot_radial_probability(filename):
+    radialProbability = np.loadtxt(filename, delimiter=',')
     plt.figure(figsize=(8, 8), dpi=80, facecolor='w', edgecolor='k')
     plt.plot(radialProbability[:, 0], radialProbability[:, 1])
-    plt.show()
+    plt.savefig(filename[:-4] + '.png', bbox_inches='tight')
 
 
-def plot_density():
-    probabilityMap = np.loadtxt('probability_map.csv', delimiter=',')
+def plot_density(filename):
+    probabilityMap = np.loadtxt(filename, delimiter=',')
     plt.imshow(probabilityMap, cmap='hot', interpolation='nearest')
-    plt.show()
+    plt.savefig(filename[:-4] + '.png', bbox_inches='tight')
 
 
 def plot_traj(pos_x, pos_y):
@@ -70,9 +70,13 @@ def plot_traj(pos_x, pos_y):
 
 def main():
     # plot_force()
-    plot_radial_probability()
-    plot_density()
     # plot_my_distribution()
+    print('Creating figures...')
+    for filename in glob.glob('output/r_*_radial_probability.csv'):
+        plot_radial_probability(filename)
+    for filename in glob.glob('output/r_*_probability_map.csv'):
+        plot_density(filename)
+    
 
 if __name__ == '__main__':
     main()

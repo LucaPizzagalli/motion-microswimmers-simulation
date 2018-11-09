@@ -2,10 +2,10 @@
 #include <cmath>
 #include <gsl/gsl_randist.h>
 
-Simulation::Simulation(double delta_time_step, int total_time_steps, gsl_rng *random_generator)
+Simulation::Simulation(double delta_time_step, int total_time_steps, gsl_rng *random_generator, double radius)
 {
     this->random_generator = random_generator;
-    this->disk_wall = new DiskWall();
+    this->disk_wall = new DiskWall(radius);
     this->bacterium = new Bacterium(total_time_steps, gsl_ran_gaussian(random_generator, 10.), gsl_ran_gaussian(random_generator, 10.), gsl_ran_flat(this->random_generator, -M_PI, M_PI));
 
     this->delta_time_step = delta_time_step;
@@ -37,7 +37,6 @@ void Simulation::draw_frame(int time_step, Camera *camera)
 
 Simulation::~Simulation()
 {
-    // delete disk_wall;
-    // delete bacterium;
-    // gsl_rng_free(this->random_generator);
+    delete this->bacterium;
+    delete this->disk_wall;
 }
