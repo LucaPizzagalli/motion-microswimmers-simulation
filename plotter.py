@@ -43,11 +43,18 @@ def plot_force():
     plt.show()
 
 
+def plot_radial_probability():
+    radialProbability = np.loadtxt('radial_probability.csv', delimiter=',')
+    plt.figure(figsize=(8, 8), dpi=80, facecolor='w', edgecolor='k')
+    plt.plot(radialProbability[:, 0], radialProbability[:, 1])
+    plt.show()
+
+
 def plot_density():
-    probabilityMap = np.genfromtxt('probability_map.csv', delimiter=',')
+    probabilityMap = np.loadtxt('probability_map.csv', delimiter=',')
     plt.imshow(probabilityMap, cmap='hot', interpolation='nearest')
     plt.show()
-    
+
 
 def plot_traj(pos_x, pos_y):
     minx = min(pos_x)
@@ -63,8 +70,9 @@ def plot_traj(pos_x, pos_y):
 
 def main():
     # plot_force()
-    # plot_density()
-    plot_my_distribution()
+    plot_radial_probability()
+    plot_density()
+    # plot_my_distribution()
 
 if __name__ == '__main__':
     main()
