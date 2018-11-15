@@ -61,8 +61,6 @@ void Bacterium::compute_step(int now, double delta_time_step, Force force, gsl_r
 
     this->center_x[now] = this->center_x[now-1] + (cos_direction*this->speed + 250.*force.x)*delta_time_step + cos_direction*force_noise_x*sqrt_delta_time_step;
     this->center_y[now] = this->center_y[now-1] + (sin_direction*this->speed + 250.*force.y)*delta_time_step + sin_direction*force_noise_y*sqrt_delta_time_step;
-
-
 }
 
 double Bacterium::get_body_radius(int time_step)
@@ -120,14 +118,4 @@ void Bacterium::draw(int time_step, Camera *camera)
                 camera->pixels[y][x][2] = int(camera->pixels[y][x][2]*(1-fading)+color*fading);
             }
         }
-}
-
-Bacterium::~Bacterium()
-{
-    // this->center_x.clear();
-    // this->center_y.clear();
-    // this->direction.clear();
-    // this->tumble_countdown.clear();
-    // this->tumble_speed.clear();
-    // this->tumble_duration.clear();
 }

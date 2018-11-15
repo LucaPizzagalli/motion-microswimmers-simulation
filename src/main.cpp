@@ -18,22 +18,13 @@ int main(int argc, char *argv[])
     gsl_rng *random_generator = gsl_rng_alloc(random_generator_info);
     gsl_rng_set(random_generator, 3);
 
-    double radius_list[8];//25 50 100 150 500 micrometers
-    radius_list[0] = 25.;
-    radius_list[1] = 50.;
-    radius_list[2] = 75.;
-    radius_list[3] = 100.;
-    radius_list[4] = 125.;
-    radius_list[5] = 150.;
-    radius_list[6] = 250.;
-    radius_list[7] = 500.;
-    for (int i = 0; i< 8; ++i)
+    std::array<double, 1> radius_list = {25.};//, 50., 75., 100., 125., 150., 250., 500.};
+    for(double radius: radius_list)
     {
-        double radius = radius_list[i];
         printf("Radius: %d\n", (int)radius);
         printf("\tComputing simulations and probability map...\n");
         Analyzer analyzer;
-        int n_simulations = 3;
+        int n_simulations = 10;
         for (int j = 0; j < n_simulations; ++j)
         {
             printf("\tsimulation n %d...\n", j);
@@ -44,7 +35,11 @@ int main(int argc, char *argv[])
         }
 
         printf("\tComputing radial probability...\n");
-        analyzer.compute_radial_probability(radius);
+        analyzer.compute_radial_probability(radius, 0.0, 0.0);
+
+        printf("\tComputing near-wall probability...  ");
+        double near_wall = analyzer.compute_near_wall_probability(radius, 0.0, 0.0);
+        printf("%f\n", near_wall);
 
         printf("\tSaving stuff...\n");
         std::stringstream strm;

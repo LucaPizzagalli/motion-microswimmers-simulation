@@ -12,8 +12,8 @@ class Simulation
 
     double delta_time_step;
     int time_step;
-    Bacterium *bacterium;
-    DiskWall *disk_wall;
+    DiskWall disk_wall;
+    Bacterium bacterium;
 
 public:
     Simulation(double delta_time_step, int total_time_steps, gsl_rng *random_generator, double radius);
@@ -21,7 +21,6 @@ public:
     double get_delta_time_step();
     Bacterium* get_bacterium();
     void draw_frame(int time_step, Camera *camera);
-    ~Simulation();
 };
 
 #endif
