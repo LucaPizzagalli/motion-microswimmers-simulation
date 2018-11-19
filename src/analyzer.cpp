@@ -1,12 +1,12 @@
 #include "analyzer.h"
 #include <fstream>
 #include <gsl/gsl_integration.h>
+#include <cmath>
 
 #include "bacterium.h"
 
 #define MAP_X 1000
 #define MAP_Y 1000
-#define delta_r 5
 
 Analyzer::Analyzer()
 {
@@ -34,33 +34,41 @@ void Analyzer::compute_probability_map(Simulation *world, int start_time_step, i
     this->n_map_points += end_time_step - start_time_step;
 }
 
-double Analyzer::count_occurrences(double radius, double center_x, double center_y)
+void Analyzer::compute_radial_probability(double radius, double center_x, double center_y)
 {
-    int occurrences = 0;
+    double delta_r = 5.;
+    int n_points = (int)(radius / std::max(this->size_cell_x, this->size_cell_y))/2;
+    double d_r = radius / n_points;
+    int n_local_points = (int)(delta_r / d_r + 0.5);
+    std::vector <double> local_p = std::vector<double>(n_points, 0);
+    this->radial_probability_r = std::vector<double>(n_points - n_local_points + 1, 0);
+    this->radial_probability_p = std::vector<double>(n_points - n_local_points + 1, 0);
+
+    for (int i = 0; i < n_points - n_local_points + 1; i++)
+        this->radial_probability_r[i] = (n_local_points - 1 + i) * d_r;
+
     for (int x = 0; x < MAP_X; x++)
         for (int y = 0; y < MAP_Y; y++)
         {
-            double distance = (x * this->size_cell_x - center_x) * (x * this->size_cell_x - center_x) + (y * this->size_cell_y - center_y) * (y * this->size_cell_y - center_y);
-            if (distance >= (radius - delta_r) * (radius - delta_r) && distance < radius * radius)
-                occurrences += this->probability_map[x][y];
+            double distance = sqrt((x * this->size_cell_x - center_x) * (x * this->size_cell_x - center_x) + (y * this->size_cell_y - center_y) * (y * this->size_cell_y - center_y));
+            int index = (int)(distance / d_r);
+            if (index < n_points)
+                local_p[index] += this->probability_map[x][y];
         }
-    return occurrences / (2 * M_PI * radius * delta_r);
-}
 
-void Analyzer::compute_radial_probability(double radius, double center_x, double center_y)
-{
-    double d_r = radius * 2 / MAP_X;
-    this->radial_probability_r = std::vector<double>((int)(radius / this->size_cell_x) + 1, 0);
-    this->radial_probability_p = std::vector<double>((int)(radius / this->size_cell_y) + 1, 0);
+    for(int i = 0; i < n_points - n_local_points + 1; i++)
+        for(int j = 0; j < n_local_points; j++)
+            this->radial_probability_p[i] += local_p[i + j];
+
     double integral = 0;
-    for (int i = 0; i < MAP_X / 2; i++)
+    for(int i = 0; i < n_points - n_local_points + 1; i++)
     {
-        this->radial_probability_r[i] = delta_r + i * d_r;
-        this->radial_probability_p[i] = this->count_occurrences(delta_r + i * d_r, center_x, center_y);
+        this->radial_probability_p[i] /= (2 * M_PI * this->radial_probability_r[i] * delta_r);
         integral += this->radial_probability_p[i];
     }
     integral *= d_r;
-    for (int i = 0; i < MAP_X / 2; i++)
+
+    for(int i = 0; i < n_points - n_local_points + 1; i++)
         this->radial_probability_p[i] /= integral;
 }
 

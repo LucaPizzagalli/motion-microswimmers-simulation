@@ -14,3 +14,10 @@
 ###Run
 -   ```.bin/simulation```
 -   ```python3 plotter.py```
+
+###Profiling
+- install Valgrind: ```apt-get install valgrind```
+- memory leaks check: ```valgrind --leak-check=yes bin/simulation```
+- profiling:
+. ```valgrind --tool=callgrind bin/simulation```
+. ```callgrind_annotate callgrind.out.<pid>```

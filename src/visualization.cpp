@@ -22,7 +22,7 @@ Visualization::Visualization()
 	this->texture = SDL_CreateTexture(this->renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, SCREEN_WIDTH, SCREEN_HEIGHT);
 	if (!this->texture)
 		printf("texture could not be created! SDL Error: %s\n", SDL_GetError());
-	this->font = TTF_OpenFont("font.ttf", 15);
+	this->font = TTF_OpenFont("font.ttf", 18);
 	if(this->font == NULL )
 		printf("Failed to load lazy font! SDL_ttf Error: %s\n", TTF_GetError());
 	this->camera.zoom = 1.;

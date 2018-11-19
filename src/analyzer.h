@@ -23,7 +23,7 @@ public:
     void save_probability_map(const std::string &file_name);
     void save_radial_probability(const std::string &file_name);
 private:
-    double count_occurrences(double radius, double center_x, double center_y);
+    double count_occurrences(double radius, double center_x, double center_y, double delta_r);
 };
 
 #endif

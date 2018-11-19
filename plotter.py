@@ -45,9 +45,7 @@ def plot_force():
 
 def plot_radial_probability(filename):
     radialProbability = np.loadtxt(filename, delimiter=',')
-    plt.figure(figsize=(8, 8), dpi=80, facecolor='w', edgecolor='k')
     plt.plot(radialProbability[:, 0], radialProbability[:, 1])
-    plt.savefig(filename[:-4] + '.png', bbox_inches='tight')
 
 
 def plot_density(filename):
@@ -71,12 +69,17 @@ def plot_traj(pos_x, pos_y):
 def main():
     # plot_force()
     # plot_my_distribution()
-    print('Creating figures...')
+
+    plt.figure(figsize=(8, 8), dpi=80, facecolor='w', edgecolor='k')
+    print('Creating radial probability plots...')
     for filename in glob.glob('output/r_*_radial_probability.csv'):
         plot_radial_probability(filename)
+    plt.savefig('output/my_radial_probability.png', bbox_inches='tight')
+
+    print('Creating probability map plots...')
     for filename in glob.glob('output/r_*_probability_map.csv'):
         plot_density(filename)
-    
+
 
 if __name__ == '__main__':
     main()
