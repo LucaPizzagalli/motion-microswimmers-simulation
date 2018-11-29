@@ -1,8 +1,8 @@
-#include "visualization.h"
+#include "visualization.hpp"
 #include <stdio.h>
 #include <algorithm>
 #include <sstream>
-#include "simulation.h"
+#include "simulation.hpp"
 
 Visualization::Visualization()
 {

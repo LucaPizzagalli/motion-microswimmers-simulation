@@ -9,5 +9,5 @@ all: bin/simulation
 bin/simulation: $(OBJECTS)
 	$(COMPILER) $(OBJECTS) $(LINKER_FLAGS) -o bin/simulation
 
-$(OBJECTS): $(SOURCES) $(SOURCES:.cpp=h)
+$(OBJECTS): $(SOURCES) $(SOURCES:.cpp=hpp)
 	$(COMPILER) -c $(SOURCES) $(COMPILER_FLAGS)

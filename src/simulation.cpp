@@ -1,10 +1,10 @@
-#include "simulation.h"
+#include "simulation.hpp"
 #include <cmath>
 #include <gsl/gsl_randist.h>
 
-Simulation::Simulation(double delta_time_step, int total_time_steps, gsl_rng *random_generator, double radius):
-    disk_wall (radius),
-    bacterium (total_time_steps, 0., 0., 4/*gsl_ran_flat(random_generator, -M_PI, M_PI)*/)
+Simulation::Simulation(nlohmann::json parameters, nlohmann::json initial_conditions, double delta_time_step, int total_time_steps, gsl_rng *random_generator) :
+    disk_wall(parameters["wall"], initial_conditions["wall"]),
+    bacterium(parameters["cell"], initial_conditions["cell"], total_time_steps)
 {
     this->random_generator = random_generator;
 
@@ -15,11 +15,11 @@ Simulation::Simulation(double delta_time_step, int total_time_steps, gsl_rng *ra
 void Simulation::compute_next_step()
 {
     this->time_step++;
-    Force force = this->disk_wall.force_acting_on(this->time_step, &(this->bacterium));
-    this->bacterium.compute_step(this->time_step, this->delta_time_step, force, this->random_generator);
+    CellForce forces = this->disk_wall.force_acting_on(this->time_step, &(this->bacterium));
+    this->bacterium.compute_step(this->time_step, this->delta_time_step, forces, this->random_generator);
 }
 
-Bacterium* Simulation::get_bacterium()
+Bacterium *Simulation::get_bacterium()
 {
     return &(this->bacterium);
 }

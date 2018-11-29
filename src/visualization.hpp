@@ -3,8 +3,8 @@
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
-#include "definition.h"
-#include "simulation.h"
+#include "definition.hpp"
+#include "simulation.hpp"
 
 class Visualization
 {

@@ -1,35 +1,34 @@
-#include "analyzer.h"
+#include "analyzer.hpp"
 #include <fstream>
 #include <gsl/gsl_integration.h>
 #include <cmath>
 
-#include "bacterium.h"
+#include "bacterium.hpp"
 
 #define MAP_X 1000
 #define MAP_Y 1000
 
-Analyzer::Analyzer()
-{
-    this->reset_probability_map();
-}
-
-void Analyzer::reset_probability_map()
+Analyzer::Analyzer(double left_x, double top_y, double right_x, double bottom_y)
 {
     this->probability_map = std::vector<std::vector<double>>(MAP_X, std::vector<double>(MAP_Y, 0));
     this->n_map_points = 0;
+
+    this->probability_map_left_corner_x = left_x;
+    this->probability_map_top_corner_y = top_y;
+    this->probability_map_right_corner_x = right_x;
+    this->probability_map_bottom_corner_y = bottom_y;
+    this->size_cell_x = (this->probability_map_right_corner_x - this->probability_map_left_corner_x) / MAP_X;
+    this->size_cell_y = (this->probability_map_bottom_corner_y - this->probability_map_top_corner_y) / MAP_Y;
 }
 
-void Analyzer::compute_probability_map(Simulation *world, int start_time_step, int end_time_step, double left_x, double top_y, double right_x, double bottom_y)
+void Analyzer::update_probability_map(Simulation *world, int start_time_step, int end_time_step)
 {
-    this->size_cell_x = (right_x - left_x) / MAP_X;
-    this->size_cell_y = (bottom_y - top_y) / MAP_Y;
-
     for (int time = start_time_step; time < end_time_step; time++)
     {
         double x = world->get_bacterium()->get_body_x(time);
         double y = world->get_bacterium()->get_body_y(time);
-        if (x > left_x && x < right_x && y > top_y && y < bottom_y)
-            this->probability_map[(int)((x - left_x) / size_cell_x)][(int)((y - top_y) / size_cell_y)]++;
+        if (x > this->probability_map_left_corner_x && x < this->probability_map_right_corner_x && y > this->probability_map_top_corner_y && y < this->probability_map_bottom_corner_y)
+            this->probability_map[(int)((x - this->probability_map_left_corner_x) / size_cell_x)][(int)((y - this->probability_map_top_corner_y) / size_cell_y)]++;
     }
     this->n_map_points += end_time_step - start_time_step;
 }
@@ -50,7 +49,7 @@ void Analyzer::compute_radial_probability(double radius, double center_x, double
     for (int x = 0; x < MAP_X; x++)
         for (int y = 0; y < MAP_Y; y++)
         {
-            double distance = sqrt((x * this->size_cell_x - center_x) * (x * this->size_cell_x - center_x) + (y * this->size_cell_y - center_y) * (y * this->size_cell_y - center_y));
+            double distance = sqrt((x * this->size_cell_x + this->probability_map_left_corner_x - center_x) * (x * this->size_cell_x + this->probability_map_left_corner_x - center_x) + (y * this->size_cell_y + this->probability_map_top_corner_y - center_y) * (y * this->size_cell_y + this->probability_map_top_corner_y - center_y));
             int index = (int)(distance / d_r);
             if (index < n_points)
                 local_p[index] += this->probability_map[x][y];
@@ -72,7 +71,7 @@ void Analyzer::compute_radial_probability(double radius, double center_x, double
         this->radial_probability_p[i] /= integral;
 }
 
-double Analyzer::compute_near_wall_probability(double radius, double center_x, double center_y)
+double Analyzer::compute_near_wall_probability(double radius)
 {
     double near_wall = 15; //15 micrometer
     double dr = this->radial_probability_r[1] - this->radial_probability_r[0];

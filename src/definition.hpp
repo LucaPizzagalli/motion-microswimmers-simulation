@@ -1,13 +1,17 @@
-#define SCREEN_HEIGHT 600
-#define SCREEN_WIDTH 600
-
 #ifndef DEFINITION_H
 #define DEFINITION_H
 
-struct Force
+#define SCREEN_HEIGHT 600
+#define SCREEN_WIDTH 600
+
+#define SQRT_2 1.41421
+
+struct CellForce
 {
-    double x;
-    double y;
+    double body_x;
+    double body_y;
+    double flagella_x;
+    double flagella_y;
 };
 struct Camera
 {

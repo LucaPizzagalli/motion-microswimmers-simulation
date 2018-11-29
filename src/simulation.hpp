@@ -2,9 +2,10 @@
 #define SIMULATION_H
 
 #include <gsl/gsl_rng.h>
-#include "definition.h"
-#include "diskWall.h"
-#include "bacterium.h"
+#include "include/json.hpp"
+#include "definition.hpp"
+#include "diskWall.hpp"
+#include "bacterium.hpp"
 
 class Simulation
 {
@@ -16,7 +17,7 @@ class Simulation
     Bacterium bacterium;
 
 public:
-    Simulation(double delta_time_step, int total_time_steps, gsl_rng *random_generator, double radius);
+    Simulation(nlohmann::json parameters, nlohmann::json initial_conditions, double delta_time_step, int total_time_steps, gsl_rng *random_generator);
     void compute_next_step();
     double get_delta_time_step();
     Bacterium* get_bacterium();

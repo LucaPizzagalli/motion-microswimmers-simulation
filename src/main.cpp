@@ -2,62 +2,84 @@
 #include <gsl/gsl_rng.h>
 #include <gsl/gsl_randist.h>
 #include <sstream>
+#include <fstream>
 
-#include "simulation.h"
-#include "analyzer.h"
-#include "visualization.h"
+#include "include/json.hpp"
+
+#include "simulation.hpp"
+#include "analyzer.hpp"
+#include "visualization.hpp"
+
+nlohmann::json read_physics_parameters(std::string filename)
+{
+    std::ifstream input_file(filename);
+    nlohmann::json physics_parameters;
+    input_file >> physics_parameters;
+    input_file.close();
+    return physics_parameters;
+}
+
+nlohmann::json read_simulation_parameters(std::string filename)
+{
+    std::ifstream input_file(filename);
+    nlohmann::json simulation_parameters;
+    input_file >> simulation_parameters;
+    input_file.close();
+    return simulation_parameters;
+}
 
 int main(int argc, char *argv[])
 {
-    double delta_time_step = 1e-4;
-    int n_time_steps = (int)(100. / delta_time_step);
-    int n_simulations = 10;
+    nlohmann::json physics_parameters = read_physics_parameters("./param/physics_parameters.json");
+    nlohmann::json simulation_parameters = read_physics_parameters("./param/simulation_parameters.json");
+
+    double delta_time_step = simulation_parameters["time_step"].get<double>();
+    int n_time_steps = (int)(simulation_parameters["duration"].get<double>() / delta_time_step);
+    double map_margin = physics_parameters["parameters"]["wall"]["innerRadius"].get<double>();
 
     gsl_rng_env_setup();
     const gsl_rng_type *random_generator_info;
-    random_generator_info = gsl_rng_default;
+    random_generator_info = gsl_rng_default;////
     gsl_rng *random_generator = gsl_rng_alloc(random_generator_info);
-    gsl_rng_set(random_generator, 3);
+    gsl_rng_set(random_generator, simulation_parameters["random_seed"].get<int>());
 
-    std::array<double, 8> radius_list = {25., 50., 75., 100., 125., 150., 250., 500.};
-    // std::array<double, 1> radius_list = {100.};
-    // for(double radius: radius_list)
-    // {
-    //     printf("Radius: %d\n", (int)radius);
-    //     printf("\tComputing simulations and probability map...\n");
-    //     Analyzer analyzer;
-    //     for (int j = 0; j < n_simulations; ++j)
-    //     {
-    //         printf("\tsimulation n %d...\n", j);
-    //         Simulation world(delta_time_step, n_time_steps, random_generator, radius);
-    //         for (int i = 0; i < n_time_steps - 1; ++i)
-    //             world.compute_next_step();
-    //         analyzer.compute_probability_map(&world, 0, n_time_steps, -radius, -radius, radius, radius);
-    //     }
+    // std::array<double, 8> radius_list = {25., 50., 75., 100., 125., 150., 250., 500.};
 
-    //     printf("\tComputing radial probability...\n");
-    //     analyzer.compute_radial_probability(radius, radius, radius);
 
-    //     printf("\tComputing near-wall probability...  ");
-    //     double near_wall = analyzer.compute_near_wall_probability(radius, radius, radius);
-    //     printf("%f\n", near_wall);
+    printf("\tComputing simulations and probability map...\n");
+        Analyzer analyzer(-map_margin, -map_margin, map_margin, map_margin);
+    for (int simulation_index = 0; simulation_index < simulation_parameters["n_simulations"].get<int>(); ++simulation_index)
+    {
+        printf("\tSimulation n %d...\n", simulation_index);
 
-    //     printf("\tSaving stuff...\n");
-    //     std::stringstream strm;
-    //     strm << "output/r_" << (int)radius << "_probability_map.csv";
-    //     analyzer.save_probability_map(strm.str().c_str());
-    //     strm.str("");
-    //     strm << "output/r_" << (int)radius << "_radial_probability.csv";
-    //     analyzer.save_radial_probability(strm.str().c_str());
-    // }
-
-    printf("Simulation...\n");
-    Simulation world(delta_time_step, n_time_steps, random_generator, radius_list[0]);
-        for(int i=0; i<n_time_steps-1; ++i)
+        Simulation world(physics_parameters["parameters"], physics_parameters["initialConditions"], delta_time_step, n_time_steps, random_generator);
+        for (int i = 0; i < n_time_steps - 1; ++i)
             world.compute_next_step();
-    printf("Visualization...\n");
-    Visualization visualization;
-    visualization.render(&world, 0, n_time_steps, 1);
+        analyzer.update_probability_map(&world, 0, n_time_steps);
+        
+        if(simulation_parameters["visualization"].get<bool>())
+        {
+            printf("Visualization...\n");
+            Visualization visualization;
+            visualization.render(&world, 0, n_time_steps, 1);
+        }
+    }
+
+    printf("\tComputing radial probability...\n");
+    analyzer.compute_radial_probability(physics_parameters["parameters"]["wall"]["innerRadius"].get<double>(), 0., 0.);
+
+    printf("\tComputing near-wall probability...  ");
+    double near_wall = analyzer.compute_near_wall_probability(physics_parameters["parameters"]["wall"]["innerRadius"].get<double>());
+    printf("%f\n", near_wall);
+
+    printf("\tSaving stuff...\n");
+    std::stringstream strm;
+    strm << "output/r_boh_probability_map.csv";
+    analyzer.save_probability_map(strm.str().c_str());
+    strm.str("");
+    strm << "output/r_boh_radial_probability.csv";
+    analyzer.save_radial_probability(strm.str().c_str());
+    
 
     gsl_rng_free(random_generator);
     return 0;
