@@ -54,10 +54,10 @@ void Bacterium::compute_step(int now, double delta_time_step, CellForce forces, 
 
     double torque_noise_z = gsl_ran_gaussian(random_generator, 1.) * SQRT_2 * this->_sqrt_persistence_time;
 
-    rotation += -torque_z / this->shear_time * delta_time_step - torque_noise_z * sqrt_delta_time_step;
+    rotation += torque_z / this->shear_time * delta_time_step + torque_noise_z * sqrt_delta_time_step;
 
-    double force_noise_x =0;//= gsl_ran_gaussian(random_generator, 1.) * SQRT_2 * this->_sqrt_diffusivity;
-    double force_noise_y =0;//= gsl_ran_gaussian(random_generator, 1.) * SQRT_2 * this->_sqrt_diffusivity;
+    double force_noise_x = gsl_ran_gaussian(random_generator, 1.) * SQRT_2 * this->_sqrt_diffusivity;
+    double force_noise_y = gsl_ran_gaussian(random_generator, 1.) * SQRT_2 * this->_sqrt_diffusivity;
 
     this->center_x[now] = this->center_x[now - 1] + (cos_direction * this->speed + this->diffusivity * (forces.body_x + forces.flagella_x)) * delta_time_step + force_noise_x * sqrt_delta_time_step;
     this->center_y[now] = this->center_y[now - 1] + (sin_direction * this->speed + this->diffusivity * (forces.body_y + forces.flagella_y)) * delta_time_step + force_noise_y * sqrt_delta_time_step;
@@ -68,7 +68,7 @@ void Bacterium::compute_step(int now, double delta_time_step, CellForce forces, 
 
 double Bacterium::_compute_torque(CellForce forces, double sin_direction, double cos_direction)
 {
-    double torque_body = 0;//-this->rotation_center * (cos_direction * forces.body_y - sin_direction * forces.body_x);
+    double torque_body = -this->rotation_center * (cos_direction * forces.body_y - sin_direction * forces.body_x);
     double torque_flagella = (this->body_flagella_distance - this->rotation_center) * (cos_direction * forces.flagella_y - sin_direction * forces.flagella_x);
     return torque_body + torque_flagella;
 }
@@ -87,7 +87,6 @@ double Bacterium::_tumble(double now, double delta_time_step, gsl_rng *random_ge
             double tumble_strength = this->tumble_strength_mean + gsl_ran_gaussian(random_generator, this->tumble_strength_std);
             tumble_strength *= (int)gsl_rng_uniform_int(random_generator, 2)*2-1;
             rotation = tumble_strength;
-            printf("%f\n", tumble_strength);
             this->tumble_countdown[now] = gsl_ran_exponential(random_generator, this->tumble_delay_mean);
         }
     }

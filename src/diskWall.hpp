@@ -1,7 +1,6 @@
 #ifndef DISKWALL_H
 #define DISKWALL_H
 
-#include <memory>////
 #include "include/json.hpp"
 #include "definition.hpp"
 #include "bacterium.hpp"

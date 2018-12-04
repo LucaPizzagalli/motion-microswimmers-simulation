@@ -1,6 +1,7 @@
 #include "diskWall.hpp"
 #include <cmath>
 #include <algorithm>
+#include <sstream>
 
 DiskWall::DiskWall(nlohmann::json parameters, nlohmann::json initial_conditions)
 {
@@ -30,8 +31,9 @@ CellForce DiskWall::force_acting_on(int now, Bacterium *bacterium)
 
         if (body_distance <= 0)
         {
-            printf("Error body distance %d\n", now);
-            throw "Error: body over the wall";
+            std::stringstream strm;
+            strm << "Body over the wall at time:" << now;
+            throw strm.str();
         }
         else if (body_distance < bacterium->get_body_radius(now - 1) * 1.122462) // 2^(1/6)
         {
@@ -61,8 +63,9 @@ CellForce DiskWall::force_acting_on(int now, Bacterium *bacterium)
         flagella_distance = this->inner_radius - flagella_distance;
         if (flagella_distance <= 0)
         {
-            printf("Error flagella distance %d\n", now);
-            throw "Error: flagella over the wall";
+            std::stringstream strm;
+            strm << "Flagella over the wall at time:" << now;
+            throw strm.str();
         }
         else if (flagella_distance < bacterium->get_flagella_radius(now - 1) * 1.122462) // 2^(1/6)
         {
