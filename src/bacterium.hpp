@@ -9,6 +9,9 @@
 
 class Bacterium
 {
+    gsl_rng *random_generator;
+    int step_size;
+
     double body_radius;
     double flagella_radius;
     double body_flagella_distance;
@@ -25,30 +28,39 @@ class Bacterium
     double persistence_time, _sqrt_persistence_time;
     double shear_time;
     
-    std::vector<double> center_x; // positions of the swimmer
-    std::vector<double> center_y; // positions of the swimmer
-    std::vector<double> direction; // orientation of the swimmer
-    std::vector<double> tumble_countdown; // time left before next tumble
+    double prev_center_x, next_center_x;
+    double prev_center_y, next_center_y;
+    double prev_direction, next_direction;
+    double prev_tumble_countdown, next_tumble_countdown;
+    double prev_tumble_speed, next_tumble_speed;
+    double prev_tumble_duration, next_tumble_duration;
+
+    std::vector<double> center_x;
+    std::vector<double> center_y;
+    std::vector<double> direction;
+    std::vector<double> tumble_countdown;
     std::vector<double> tumble_speed;
     std::vector<double> tumble_duration;
 
 public:
-    Bacterium(nlohmann::json parameters, nlohmann::json initial_conditions, int total_time_steps);
-    void compute_step(int now, double delta_time_step, CellForce forces, gsl_rng *random_generator);
-    double get_body_radius(int time_step);
-    double get_flagella_radius(int time_step);
-    double get_body_x(int time_step);
-    double get_body_y(int time_step);
-    double get_flagella_x(int time_step);
-    double get_flagella_y(int time_step);
-    std::vector<double> get_history_body_x(int start_time_step, int end_time_step);
-    std::vector<double> get_history_body_y(int start_time_step, int end_time_step);
+    Bacterium(nlohmann::json parameters, nlohmann::json initial_conditions, int total_time_steps, int step_size, gsl_rng *random_generator);
+    void compute_step(int now, double delta_time_step, CellForce forces);
+    void update_state(int now);
+    double get_body_radius();
+    double get_flagella_radius();
+    double get_body_x();
+    double get_body_y();
+    double get_history_body_x(int time_step);
+    double get_history_body_y(int time_step);
+    double get_flagella_x();
+    double get_flagella_y();
+    std::string state_to_string();
     void draw(int time_step, Camera *camera);
 
 protected:
     double _compute_torque(CellForce forces, double sin_direction, double cos_direction);
-    double _tumble(double now, double delta_time_step, gsl_rng *random_generator);
-    void _rotate(double now, double rotation, double sin_direction, double cos_direction);
+    double _tumble(double delta_time_step);
+    void _rotate(double rotation, double sin_direction, double cos_direction);
 };
 
 #endif

@@ -13,15 +13,15 @@ DiskWall::DiskWall(nlohmann::json parameters, nlohmann::json initial_conditions)
     this->center_y = initial_conditions["position"]["y"].get<double>();
 }
 
-CellForce DiskWall::force_acting_on(int now, Bacterium *bacterium)
+CellForce DiskWall::force_acting_on(Bacterium *bacterium)
 {
     double x, y;
     double body_e_x, body_e_y, force_body_modulus;
     double flagella_e_x, flagella_e_y, force_flagella_modulus;
 
     // force on body
-    x = bacterium->get_body_x(now - 1) - this->center_x;
-    y = bacterium->get_body_y(now - 1) - this->center_y;
+    x = bacterium->get_body_x() - this->center_x;
+    y = bacterium->get_body_y() - this->center_y;
     double body_distance = sqrt(x * x + y * y);
     if (body_distance > 0)
     {
@@ -32,12 +32,12 @@ CellForce DiskWall::force_acting_on(int now, Bacterium *bacterium)
         if (body_distance <= 0)
         {
             std::stringstream strm;
-            strm << "Body over the wall at time:" << now;
+            strm << "Cell's body over the wall";
             throw strm.str();
         }
-        else if (body_distance < bacterium->get_body_radius(now - 1) * 1.122462) // 2^(1/6)
+        else if (body_distance < bacterium->get_body_radius() * 1.122462) // 2^(1/6)
         {
-            double rad_6 = pow(bacterium->get_body_radius(now - 1), 6.);
+            double rad_6 = pow(bacterium->get_body_radius(), 6.);
             double dist_6 = pow(body_distance, 6.);
             force_body_modulus = 24 * this->hardness * (2 * rad_6 * rad_6 / (dist_6 * dist_6 * body_distance) - rad_6 / (dist_6 * body_distance));
         }
@@ -52,8 +52,8 @@ CellForce DiskWall::force_acting_on(int now, Bacterium *bacterium)
     }
 
     // force on flagella
-    x = bacterium->get_flagella_x(now - 1) - this->center_x;
-    y = bacterium->get_flagella_y(now - 1) - this->center_y;
+    x = bacterium->get_flagella_x() - this->center_x;
+    y = bacterium->get_flagella_y() - this->center_y;
 
     double flagella_distance = sqrt(x * x + y * y);
     if (flagella_distance != 0)
@@ -64,12 +64,12 @@ CellForce DiskWall::force_acting_on(int now, Bacterium *bacterium)
         if (flagella_distance <= 0)
         {
             std::stringstream strm;
-            strm << "Flagella over the wall at time:" << now;
+            strm << "Cell's Flagella over the wall";
             throw strm.str();
         }
-        else if (flagella_distance < bacterium->get_flagella_radius(now - 1) * 1.122462) // 2^(1/6)
+        else if (flagella_distance < bacterium->get_flagella_radius() * 1.122462) // 2^(1/6)
         {
-            double rad_6 = pow(bacterium->get_flagella_radius(now - 1), 6.);
+            double rad_6 = pow(bacterium->get_flagella_radius(), 6.);
             double dist_6 = pow(flagella_distance, 6.);
             force_flagella_modulus = 24 * this->hardness * (2 * rad_6 * rad_6 / (dist_6 * dist_6 * flagella_distance) - rad_6 / (dist_6 * flagella_distance));
         }

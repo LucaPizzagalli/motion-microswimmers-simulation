@@ -20,7 +20,7 @@ class Analyzer
 
 public:
     Analyzer(double left_x, double top_y, double right_x, double bottom_y);
-    void update_probability_map(Simulation *world, int start_time_step, int end_time_step);
+    void update_probability_map(Simulation *world, int start_time_step, int end_time_step, int step_size);
     void compute_radial_probability(double radius, double center_x, double center_y);
     double compute_near_wall_probability(double radius);
     void save_probability_map(const std::string &file_name);

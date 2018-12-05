@@ -15,7 +15,7 @@ class DiskWall
 
 public:
     DiskWall(nlohmann::json parameters, nlohmann::json initial_conditions);
-    CellForce force_acting_on(int now, Bacterium *bacterium);
+    CellForce force_acting_on(Bacterium *bacterium);
     void draw(int time_step, Camera *camera);
 };
 

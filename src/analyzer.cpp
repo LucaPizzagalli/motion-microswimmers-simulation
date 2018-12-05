@@ -21,16 +21,16 @@ Analyzer::Analyzer(double left_x, double top_y, double right_x, double bottom_y)
     this->size_cell_y = (this->probability_map_bottom_corner_y - this->probability_map_top_corner_y) / MAP_Y;
 }
 
-void Analyzer::update_probability_map(Simulation *world, int start_time_step, int end_time_step)
+void Analyzer::update_probability_map(Simulation *world, int start_time_step, int end_time_step, int step_size)
 {
-    for (int time = start_time_step; time < end_time_step; time++)
+    for (int time = start_time_step; time < end_time_step; time+=step_size)
     {
-        double x = world->get_bacterium()->get_body_x(time);
-        double y = world->get_bacterium()->get_body_y(time);
+        double x = world->get_bacterium()->get_history_body_x(time);
+        double y = world->get_bacterium()->get_history_body_x(time);
         if (x > this->probability_map_left_corner_x && x < this->probability_map_right_corner_x && y > this->probability_map_top_corner_y && y < this->probability_map_bottom_corner_y)
             this->probability_map[(int)((x - this->probability_map_left_corner_x) / size_cell_x)][(int)((y - this->probability_map_top_corner_y) / size_cell_y)]++;
     }
-    this->n_map_points += end_time_step - start_time_step;
+    this->n_map_points += (end_time_step - start_time_step)/step_size;
 }
 
 void Analyzer::compute_radial_probability(double radius, double center_x, double center_y)

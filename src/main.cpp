@@ -35,12 +35,11 @@ int main(int argc, char *argv[])
 
     double delta_time_step = simulation_parameters["time_step"].get<double>();
     int n_time_steps = (int)(simulation_parameters["duration"].get<double>() / delta_time_step);
+    int step_size = (int)(simulation_parameters["saved_time_step"].get<double>() / simulation_parameters["time_step"].get<double>());
     double map_margin = physics_parameters["parameters"]["wall"]["innerRadius"].get<double>();
 
     gsl_rng_env_setup();
-    const gsl_rng_type *random_generator_info;
-    random_generator_info = gsl_rng_default;////
-    gsl_rng *random_generator = gsl_rng_alloc(random_generator_info);
+    gsl_rng *random_generator = gsl_rng_alloc(gsl_rng_default);
     gsl_rng_set(random_generator, simulation_parameters["random_seed"].get<int>());
 
     // std::array<double, 8> radius_list = {25., 50., 75., 100., 125., 150., 250., 500.};
@@ -52,12 +51,12 @@ int main(int argc, char *argv[])
     {
         std::cout << "\tSimulation n " << simulation_index << "...\n";
 
-        Simulation world(physics_parameters["parameters"], physics_parameters["initialConditions"], delta_time_step, n_time_steps, random_generator);
+        Simulation world(physics_parameters["parameters"], physics_parameters["initialConditions"], delta_time_step, n_time_steps, step_size, random_generator);
         try
         {
             for (int i = 0; i < n_time_steps - 1; ++i)
                 world.compute_next_step();
-            analyzer.update_probability_map(&world, 0, n_time_steps);
+            analyzer.update_probability_map(&world, 0, n_time_steps, step_size);
         }
         catch (std::string error)
         {
@@ -67,7 +66,7 @@ int main(int argc, char *argv[])
         {
             std::cout << "Visualization...\n";
             Visualization visualization;
-            visualization.render(&world, 0, n_time_steps, 1);
+            visualization.render(&world, 0, n_time_steps, step_size);
         }
     }
 

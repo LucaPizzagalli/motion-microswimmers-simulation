@@ -1,10 +1,11 @@
 #include "simulation.hpp"
 #include <cmath>
 #include <gsl/gsl_randist.h>
+#include <sstream>
 
-Simulation::Simulation(nlohmann::json parameters, nlohmann::json initial_conditions, double delta_time_step, int total_time_steps, gsl_rng *random_generator) :
-    disk_wall(parameters["wall"], initial_conditions["wall"]),
-    bacterium(parameters["cell"], initial_conditions["cell"], total_time_steps)
+Simulation::Simulation(nlohmann::json parameters, nlohmann::json initial_conditions, double delta_time_step, int total_time_steps, int step_size, gsl_rng *random_generator)
+    : disk_wall(parameters["wall"], initial_conditions["wall"]),
+      bacterium(parameters["cell"], initial_conditions["cell"], total_time_steps, step_size, random_generator)
 {
     this->random_generator = random_generator;
 
@@ -15,8 +16,21 @@ Simulation::Simulation(nlohmann::json parameters, nlohmann::json initial_conditi
 void Simulation::compute_next_step()
 {
     this->time_step++;
-    CellForce forces = this->disk_wall.force_acting_on(this->time_step, &(this->bacterium));
-    this->bacterium.compute_step(this->time_step, this->delta_time_step, forces, this->random_generator);
+    try
+    {
+        CellForce forces = this->disk_wall.force_acting_on(&(this->bacterium));
+        this->bacterium.compute_step(this->time_step, this->delta_time_step, forces);
+    }
+    catch (std::string error)
+    {
+        std::stringstream strm;
+        strm << "Simulation error at time_step " << this->time_step << ": \n\t";
+        strm << error << "\n";
+        strm << "Cell's state:\n" << this->bacterium.state_to_string();
+        throw strm.str();
+    }
+
+    this->bacterium.update_state(this->time_step);
 }
 
 Bacterium *Simulation::get_bacterium()

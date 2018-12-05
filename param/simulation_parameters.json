@@ -2,9 +2,10 @@
     "unitOfMeasure": {
         "time": "second"
     },
-    "visualization": false,
+    "visualization": true,
     "n_simulations": 20,
     "duration": 100.0,
-    "time_step": 0.5e-6,
+    "time_step": 1e-5,
+    "saved_time_step": 1e-4,
     "random_seed": 4
 }
