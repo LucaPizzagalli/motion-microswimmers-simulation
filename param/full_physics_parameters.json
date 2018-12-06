@@ -1,0 +1,70 @@
+{
+    "unitOfMeasure": {
+        "space": "micrometer",
+        "time": "second",
+        "angle": "radiant"
+    },
+    "parameters": {
+        "cell": {
+            "shape": {
+                "body": {
+                    "radius": [2.5, 5.0]
+                },
+                "flagella": {
+                    "radius": 5.0
+                },
+                "BodyFlagellaDistance": 5.0,
+                "rotationCenter": [2.5, 0]
+            },
+            "propulsion": {
+                "speed": 100.0,
+                "tumble": {
+                    "strength": {
+                        "mean": 1.57079632679,
+                        "std": 0.1
+                    },
+                    "duration": {
+                        "mean": 0.0,
+                        "std": 0.0
+                    },
+                    "delay": 2.0
+                }
+            },
+            "fluidCellInteraction": {
+                "diffusivity": 250.0,
+                "persistenceTime": 2.0,
+                "shearTime": 0.15
+            },
+            "noise": {
+                "position": {
+                    "strength": 1.0
+                },
+                "direction": {
+                    "strength": 2.0
+                }
+            }
+        },
+        "wall": {
+            "innerRadius": [25.0, 50.0, 75.0, 100.0, 125.0, 150.0, 250.0, 500.0],
+            "thickness": 5.0,
+            "wallInteraction": {
+                "hardness": 10
+            }
+        }
+    },
+    "initialConditions": {
+        "cell": {
+            "position": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "direction": 0.0
+        },
+        "wall": {
+            "position": {
+                "x": 0.0,
+                "y": 0.0
+            }
+        }
+    }
+}

@@ -42,14 +42,11 @@ int main(int argc, char *argv[])
     gsl_rng *random_generator = gsl_rng_alloc(gsl_rng_default);
     gsl_rng_set(random_generator, simulation_parameters["random_seed"].get<int>());
 
-    // std::array<double, 8> radius_list = {25., 50., 75., 100., 125., 150., 250., 500.};
-
-
-    std::cout << "\tComputing simulations and probability map...\n";
-        Analyzer analyzer(-map_margin, -map_margin, map_margin, map_margin);
+    std::cout << "Computing simulations and probability map...\n";
+    Analyzer analyzer(-map_margin, -map_margin, map_margin, map_margin, simulation_parameters["probability_map_width"].get<int>(), simulation_parameters["probability_map_height"].get<int>());
     for (int simulation_index = 0; simulation_index < simulation_parameters["n_simulations"].get<int>(); ++simulation_index)
     {
-        std::cout << "\tSimulation n " << simulation_index << "...\n";
+        std::cout << "\tSimulation n " << simulation_index + 1 << "...\n";
 
         Simulation world(physics_parameters["parameters"], physics_parameters["initialConditions"], delta_time_step, n_time_steps, step_size, random_generator);
         try
@@ -62,7 +59,7 @@ int main(int argc, char *argv[])
         {
             std::cout << "ERROR: " << error << "\n";
         }
-        if(simulation_parameters["visualization"].get<bool>())
+        if (simulation_parameters["visualization"].get<bool>())
         {
             std::cout << "Visualization...\n";
             Visualization visualization;
@@ -70,21 +67,20 @@ int main(int argc, char *argv[])
         }
     }
 
-    std::cout << "\tComputing radial probability...\n";
+    std::cout << "Computing radial probability...\n";
     analyzer.compute_radial_probability(physics_parameters["parameters"]["wall"]["innerRadius"].get<double>(), 0., 0.);
 
-    std::cout << "\tComputing near-wall probability...  ";
+    std::cout << "Computing near-wall probability...  ";
     double near_wall = analyzer.compute_near_wall_probability(physics_parameters["parameters"]["wall"]["innerRadius"].get<double>());
     std::cout << near_wall << "\n";
 
-    std::cout << "\tSaving stuff...\n";
+    std::cout << "Saving stuff...\n";
     std::stringstream strm;
     strm << "output/r_boh_probability_map.csv";
     analyzer.save_probability_map(strm.str().c_str());
     strm.str("");
     strm << "output/r_boh_radial_probability.csv";
     analyzer.save_radial_probability(strm.str().c_str());
-
 
     gsl_rng_free(random_generator);
     return 0;
