@@ -37,5 +37,6 @@ bin/
 # Profiling
 callgrind.out.*
 
-#Output
+#Input-Output
+input/
 output/
