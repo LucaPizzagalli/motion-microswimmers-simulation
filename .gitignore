@@ -32,10 +32,10 @@
 *.exe
 *.out
 *.app
-.bin/simulation
+bin/
 
 # Profiling
 callgrind.out.*
 
 #Output
-.output/
+output/
