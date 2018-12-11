@@ -62,8 +62,12 @@ int main(int argc, char *argv[])
         if (simulation_parameters["visualization"].get<bool>())
         {
             std::cout << "Visualization...\n";
-            Visualization visualization;
-            visualization.render(&world, 0, n_time_steps, step_size);
+            #ifdef USESDL
+                Visualization visualization;
+                visualization.render(&world, 0, n_time_steps, step_size);
+            #else
+                std::cout << "ERROR: compiled without SDL2\n";
+            #endif
         }
     }
 
