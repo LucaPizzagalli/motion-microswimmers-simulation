@@ -1,4 +1,4 @@
-#ifdef USESDL
+#ifdef usesdl
 
 #include "visualization.hpp"
 #include <stdio.h>

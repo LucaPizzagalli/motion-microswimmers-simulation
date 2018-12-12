@@ -1,4 +1,4 @@
-#ifdef USESDL
+#ifdef usesdl
 #ifndef VISUALIZATION_H
 #define VISUALIZATION_H
 

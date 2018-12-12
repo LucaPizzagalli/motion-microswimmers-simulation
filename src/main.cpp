@@ -61,8 +61,8 @@ int main(int argc, char *argv[])
         }
         if (simulation_parameters["visualization"].get<bool>())
         {
-            std::cout << "Visualization...\n";
-            #ifdef USESDL
+            std::cout << "\tVisualization...\n";
+            #ifdef usesdl
                 Visualization visualization;
                 visualization.render(&world, 0, n_time_steps, step_size);
             #else
