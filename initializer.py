@@ -5,7 +5,7 @@ from pathlib import Path
 import subprocess
 import argparse
 import json
-from pprint import pprint
+from copy import deepcopy
 
 
 def createMake(gslCompileDir='/usr/local/include', gslLinkDir='/usr/local/lib', SDL2=True, debug=False, release=False):
@@ -46,12 +46,50 @@ def createFolders():
     if not os.path.exists('./output'):
         os.makedirs('./output')
 
+def mergeGraph(branch):
+    merged = None
+    for key, child in branch.iteritems():
+        adapted = []
+        for element in child:
+            adapted.append({key:deepcopy(element)})
+        if not merged:
+            merged = adapted
+        else:
+            oldMerged = merged
+            merged = []
+            for el1 in merged:
+                for el2 in adapted:
+
+
+
+def function(articleData, data, path, results):
+    local = data
+    for key in path:
+        local = local[key]
+    if type(local) == list:
+        for index, _ in enumerate(local):
+            if (not function(articleData, data, path + [index], results))
+            results.append()
+        return True
+    elif type(local) == dict:
+        outcome = {}
+        branch = {}
+        for key in local.keys():
+            children.[key] = function(articleData, data, path + [key], results)
+        mergeGraph(branch)
+        return outcome
+    else:
+        return [deepcopy(local)]
 
 def createParameters():
+    with open('./param/article_physics_parameters.json') as f:
+        articleData = json.load(f)
     with open('./param/full_physics_parameters.json') as f:
-        data = json.load(f)
+        fullData = json.load(f)
+    paramList = function(articleData, fullData, [], [])
+    print(paramList)
 
-
+# ./initializer.py -d --SDL2
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Compiles, runs simulations and plots results')
     parser.add_argument('-d', '--debug', action='store_true', help='compile in debug mode')
@@ -64,26 +102,25 @@ if __name__ == '__main__':
     print('\n--- Creating folders if needed')
     createFolders()
 
-    print('\n--- Creating makefile')
-    # gslCompileDir = str(Path.joinpath(Path().absolute(), 'gsl/include'))
-    # gslLinkDir = str(Path.joinpath(Path().absolute(), 'gsl/lib'))
-    createMake(SDL2=args.SDL2, debug=args.debug, release=args.release, gslCompileDir=args.gslCompileDir, gslLinkDir=args.gslLinkDir)
-
-    print('\n--- Compiling code:')
-    outcome = subprocess.run('make')
-    print('--- Outcome: ' + str(outcome))
-
     print('\n--- Create parameters files')
     createParameters()
 
-    # pprint(data)
+    # print('\n--- Creating makefile')
+    # # gslCompileDir = str(Path.joinpath(Path().absolute(), 'gsl/include'))
+    # # gslLinkDir = str(Path.joinpath(Path().absolute(), 'gsl/lib'))
+    # createMake(SDL2=args.SDL2, debug=args.debug, release=args.release, gslCompileDir=args.gslCompileDir, gslLinkDir=args.gslLinkDir)
 
-    print('\n--- Running simulation program:')
-    myEnv = os.environ.copy()
-    # myEnv['LD_LIBRARY_PATH'] = gslLinkDir
-    outcome = subprocess.run('bin/simulation', env=myEnv)
-    print('--- Outcome: ' + str(outcome))
+    # print('\n--- Compiling code:')
+    # outcome = subprocess.run('make')
+    # print('--- Outcome: ' + str(outcome))
 
-    print('\n--- Running plotter script:')
-    outcome = subprocess.run('./plotter.py')
-    print('--- Outcome: ' + str(outcome))
+
+    # print('\n--- Running simulation program:')
+    # myEnv = os.environ.copy()
+    # # myEnv['LD_LIBRARY_PATH'] = gslLinkDir
+    # outcome = subprocess.run('bin/simulation', env=myEnv)
+    # print('--- Outcome: ' + str(outcome))
+
+    # print('\n--- Running plotter script:')
+    # outcome = subprocess.run('./plotter.py')
+    # print('--- Outcome: ' + str(outcome))
