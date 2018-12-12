@@ -1,6 +1,6 @@
 COMPILER = g++
-COMPILER_FLAGS = -ggdb -std=c++0x -Wall -pedantic -I/usr/local/include -O0#-O3 for release #-ggdb for debug
-LINKER_FLAGS = -ggdb -std=c++0x -L/usr/local/lib -lgsl -lgslcblas -lm -lSDL2 -lSDL2_ttf #-O3 for release #-ggdb for debug #-lSDL2_image -pthread
+COMPILER_FLAGS = -std=c++0x -Wall -pedantic -I/home/luca.pizzagalli/swimmers-brownian-simulation/gsl/include -ggdb -O0
+LINKER_FLAGS = -std=c++0x -lm -lgsl -lgslcblas -L/home/luca.pizzagalli/swimmers-brownian-simulation/gsl/lib -ggdb
 SOURCES = src/*.cpp
 OBJECTS := ${subst src/,,$(SOURCES:.cpp=.o)}
 

@@ -1,3 +1,4 @@
+#ifdef USESDL
 #ifndef VISUALIZATION_H
 #define VISUALIZATION_H
 
@@ -24,4 +25,5 @@ public:
     ~Visualization();
 };
 
+#endif
 #endif

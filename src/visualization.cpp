@@ -1,3 +1,5 @@
+#ifdef USESDL
+
 #include "visualization.hpp"
 #include <stdio.h>
 #include <algorithm>
@@ -124,3 +126,5 @@ Visualization::~Visualization()
     SDL_DestroyRenderer(this->renderer);
 	SDL_DestroyWindow(this->gWindow);
 }
+
+#endif
