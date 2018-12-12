@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
 
     double delta_time_step = simulation_parameters["time_step"].get<double>();
     int n_time_steps = (int)(simulation_parameters["duration"].get<double>() / delta_time_step);
-    int step_size = (int)(simulation_parameters["saved_time_step"].get<double>() / simulation_parameters["time_step"].get<double>());
+    int step_size = std::max(1, (int)(simulation_parameters["saved_time_step"].get<double>() / simulation_parameters["time_step"].get<double>()));
     double map_margin = physics_parameters["parameters"]["wall"]["innerRadius"].get<double>();
 
     gsl_rng_env_setup();

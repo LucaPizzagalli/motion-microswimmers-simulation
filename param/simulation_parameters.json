@@ -2,10 +2,10 @@
     "unitOfMeasure": {
         "time": "second"
     },
-    "visualization": false,
-    "n_simulations": 10,
+    "visualization": true,
+    "n_simulations": 1,
     "duration": 10.0,
-    "time_step": 0.25e-6,
+    "time_step": 1e-4,
     "random_seed": 5,
     "saved_time_step": 1e-4,
     "probability_map_width": 1000,
