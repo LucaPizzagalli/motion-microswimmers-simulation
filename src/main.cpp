@@ -30,7 +30,14 @@ nlohmann::json read_simulation_parameters(std::string filename)
 
 int main(int argc, char *argv[])
 {
-    nlohmann::json physics_parameters = read_physics_parameters("./param/physics_parameters.json");
+    if(argc != 2)
+    {
+        std::cout << "ERROR: incorrect number of parameters\n";
+        return 1;
+    }
+    std::stringstream strm;
+    strm << "./input/" << argv[1];
+    nlohmann::json physics_parameters = read_physics_parameters(strm.str().c_str());
     nlohmann::json simulation_parameters = read_physics_parameters("./param/simulation_parameters.json");
 
     double delta_time_step = simulation_parameters["time_step"].get<double>();
@@ -44,6 +51,7 @@ int main(int argc, char *argv[])
 
     std::cout << "Computing simulations and probability map...\n";
     Analyzer analyzer(-map_margin, -map_margin, map_margin, map_margin, simulation_parameters["probability_map_width"].get<int>(), simulation_parameters["probability_map_height"].get<int>());
+
     for (int simulation_index = 0; simulation_index < simulation_parameters["n_simulations"].get<int>(); ++simulation_index)
     {
         std::cout << "\tSimulation n " << simulation_index + 1 << "...\n";
@@ -79,11 +87,11 @@ int main(int argc, char *argv[])
     std::cout << near_wall << "\n";
 
     std::cout << "Saving stuff...\n";
-    std::stringstream strm;
-    strm << "output/r_boh_probability_map.csv";
+    strm.str("");
+    strm << "output/" << argv[1] << "_probability_map.csv";
     analyzer.save_probability_map(strm.str().c_str());
     strm.str("");
-    strm << "output/r_boh_radial_probability.csv";
+    strm << "output/" << argv[1] << "_radial_probability.csv";
     analyzer.save_radial_probability(strm.str().c_str());
 
     gsl_rng_free(random_generator);
