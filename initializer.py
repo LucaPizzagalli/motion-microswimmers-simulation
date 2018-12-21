@@ -26,7 +26,8 @@ def createMake(gslCompileDir='/usr/local/include', gslLinkDir='/usr/local/lib', 
         make += ' -ggdb'
     if release:
         make += ' -O3'
-    # -lSDL2_image #-pthread
+    make += ' -pthread'
+    # -lSDL2_image
     make += '\nSOURCES = src/*.cpp'
     make += '\nOBJECTS := ${subst src/,,$(SOURCES:.cpp=.o)}'
     make += ('\n\nall: bin/simulation'
@@ -40,6 +41,7 @@ def createMake(gslCompileDir='/usr/local/include', gslLinkDir='/usr/local/lib', 
 
 def createFolders(clear):
     if clear:
+        subprocess.run(['rm', '-r', './obj'])
         subprocess.run(['rm', '-r', './input'])
         subprocess.run(['rm', '-r', './output'])
     if not os.path.exists('./bin'):
@@ -156,7 +158,7 @@ def createParameters():
     return nameDict
 
 
-# ./initializer.py -d --SDL2
+# ./initializer.py -d --SDL2 -c
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Compiles, runs simulations and plots results')
     parser.add_argument('-d', '--debug', action='store_true', help='compile in debug mode')
@@ -174,13 +176,12 @@ if __name__ == '__main__':
     nameDict = createParameters()
 
     print('\n--- Creating makefile')
-    # gslCompileDir = str(Path.joinpath(Path().absolute(), 'gsl/include'))
+    # gslCompileDir = str(Pathttps://electrek.co/h.joinpath(Path().absolute(), 'gsl/include'))
     # gslLinkDir = str(Path.joinpath(Path().absolute(), 'gsl/lib'))
     createMake(SDL2=args.SDL2, debug=args.debug, release=args.release, gslCompileDir=args.gslCompileDir, gslLinkDir=args.gslLinkDir)
 
     print('\n--- Compiling code:')
     subprocess.run('make')
-    
     print('\n--- Running simulation program:')
     myEnv = os.environ.copy()
     # myEnv['LD_LIBRARY_PATH'] = gslLinkDir

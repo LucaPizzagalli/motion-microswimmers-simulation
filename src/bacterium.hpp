@@ -43,7 +43,7 @@ class Bacterium
     std::vector<double> tumble_duration;
 
 public:
-    Bacterium(nlohmann::json parameters, nlohmann::json initial_conditions, int total_time_steps, int step_size, gsl_rng *random_generator);
+    Bacterium(nlohmann::json physics_parameters, nlohmann::json initial_conditions, nlohmann::json simulation_parameters, gsl_rng *random_generator);
     void compute_step(int now, double delta_time_step, CellForce forces);
     void update_state(int now);
     double get_body_radius();
@@ -54,7 +54,7 @@ public:
     double get_history_body_y(int time_step);
     double get_flagella_x();
     double get_flagella_y();
-    std::string state_to_string();
+    std::string state_to_string(int time_step = -1);
     void draw(int time_step, Camera *camera);
 
 protected:

@@ -11,7 +11,7 @@
                     "radius": 2.5
                 },
                 "flagella": {
-                    "radius": 5.0
+                    "radius": 2.5
                 },
                 "BodyFlagellaDistance": 5.0,
                 "rotationCenter": 0
@@ -45,7 +45,7 @@
             }
         },
         "wall": {
-            "innerRadius": [25.0, 50.0, 75.0, 100.0, 125.0, 150.0, 250.0, 500.0],
+            "innerRadius": 50.0,
             "thickness": 5.0,
             "wallInteraction": {
                 "hardness": 10

@@ -4,9 +4,9 @@
 #include <algorithm>
 #include <sstream>
 
-Bacterium::Bacterium(nlohmann::json parameters, nlohmann::json initial_conditions, int total_time_steps, int step_size, gsl_rng *random_generator)
+Bacterium::Bacterium(nlohmann::json physics_parameters, nlohmann::json initial_conditions, nlohmann::json simulation_parameters, gsl_rng *random_generator)
 {
-    int memory_size = total_time_steps / step_size;
+    int memory_size = simulation_parameters["n_saved_time_steps"].get<int>();
     this->center_x = std::vector<double>(memory_size, 0);
     this->center_y = std::vector<double>(memory_size, 0);
     this->direction = std::vector<double>(memory_size, 0);
@@ -15,24 +15,24 @@ Bacterium::Bacterium(nlohmann::json parameters, nlohmann::json initial_condition
     this->tumble_duration = std::vector<double>(memory_size, 0);
 
     this->random_generator = random_generator;
-    this->step_size = step_size;
+    this->step_size = simulation_parameters["saved_time_step_size"].get<int>();
 
-    nlohmann::json shape = parameters["shape"];
+    nlohmann::json shape = physics_parameters["shape"];
     this->body_radius = shape["body"]["radius"].get<double>();
     this->flagella_radius = shape["flagella"]["radius"].get<double>();
     this->body_flagella_distance = shape["BodyFlagellaDistance"].get<double>();
     this->rotation_center = shape["rotationCenter"].get<double>();
 
-    this->speed = parameters["propulsion"]["speed"].get<double>();
+    this->speed = physics_parameters["propulsion"]["speed"].get<double>();
 
-    nlohmann::json tumble = parameters["propulsion"]["tumble"];
+    nlohmann::json tumble = physics_parameters["propulsion"]["tumble"];
     this->tumble_delay_mean = tumble["delay"].get<double>();
     this->tumble_duration_mean = tumble["duration"]["mean"].get<double>();
     this->tumble_duration_std = tumble["duration"]["std"].get<double>();
     this->tumble_strength_mean = tumble["strength"]["mean"].get<double>();
     this->tumble_strength_std = tumble["strength"]["std"].get<double>();
 
-    nlohmann::json fluid_interaction = parameters["fluidCellInteraction"];
+    nlohmann::json fluid_interaction = physics_parameters["fluidCellInteraction"];
     this->diffusivity = fluid_interaction["diffusivity"].get<double>();
     this->_sqrt_diffusivity = sqrt(this->diffusivity);
     this->persistence_time = fluid_interaction["persistenceTime"].get<double>();
@@ -185,15 +185,29 @@ double Bacterium::get_flagella_y()
     return this->prev_center_y + sin(this->prev_direction) * this->body_flagella_distance;
 }
 
-std::string Bacterium::state_to_string()
+std::string Bacterium::state_to_string(int time_step)
 {
     std::stringstream strm;
-    strm << "center_x: " << this->prev_center_x << "\n";
-    strm << "center_y: " << this->prev_center_y << "\n";
-    strm << "direction: " << this->prev_direction << "\n";
-    strm << "tumble_countdown: " << this->prev_tumble_countdown << "\n";
-    strm << "tumble_speed: " << this->prev_tumble_speed << "\n";
-    strm << "tumble_duration: " << this->prev_tumble_duration;
+    if (time_step < 0)
+    {
+        strm << "center_x: " << this->prev_center_x << "\n";
+        strm << "center_y: " << this->prev_center_y << "\n";
+        strm << "direction: " << this->prev_direction << "\n";
+        strm << "tumble_countdown: " << this->prev_tumble_countdown << "\n";
+        strm << "tumble_speed: " << this->prev_tumble_speed << "\n";
+        strm << "tumble_duration: " << this->prev_tumble_duration << "\n";
+    }
+    else
+    {
+        int memory_slot = time_step / this->step_size;
+        strm << "time-step: " << time_step << "\n";
+        strm << "center_x: " << this->center_x[memory_slot] << "\n";
+        strm << "center_y: " << this->center_y[memory_slot] << "\n";
+        strm << "direction: " << this->direction[memory_slot] << "\n";
+        strm << "tumble_countdown: " << this->tumble_countdown[memory_slot] << "\n";
+        strm << "tumble_speed: " << this->tumble_speed[memory_slot] << "\n";
+        strm << "tumble_duration: " << this->tumble_duration[memory_slot] << "\n";
+    }
     return strm.str();
 }
 
