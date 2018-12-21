@@ -6,7 +6,6 @@ import subprocess
 import argparse
 import json
 from copy import deepcopy
-import pprint
 
 
 def createMake(gslCompileDir='/usr/local/include', gslLinkDir='/usr/local/lib', SDL2=True, debug=False, release=False):
@@ -39,7 +38,10 @@ def createMake(gslCompileDir='/usr/local/include', gslLinkDir='/usr/local/lib', 
         makefile.write(make)
 
 
-def createFolders():
+def createFolders(clear):
+    if clear:
+        subprocess.run(['rm', '-r', './input'])
+        subprocess.run(['rm', '-r', './output'])
     if not os.path.exists('./bin'):
         os.makedirs('./bin')
     if not os.path.exists('./input'):
@@ -166,7 +168,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     
     print('\n--- Deleting/creating folders if needed')
-    createFolders()
+    createFolders(args.clear)
 
     print('\n--- Creating parameters files')
     nameDict = createParameters()
@@ -177,18 +179,18 @@ if __name__ == '__main__':
     createMake(SDL2=args.SDL2, debug=args.debug, release=args.release, gslCompileDir=args.gslCompileDir, gslLinkDir=args.gslLinkDir)
 
     print('\n--- Compiling code:')
-    outcome = subprocess.run('make')
-    print('--- Outcome: ' + str(outcome))
-
+    subprocess.run('make')
+    
     print('\n--- Running simulation program:')
     myEnv = os.environ.copy()
     # myEnv['LD_LIBRARY_PATH'] = gslLinkDir
     for key, value in nameDict.items():
         print('\n---' + str(key))
         for element in value:
-            outcome = subprocess.run(['bin/simulation', element], env=myEnv)
-    print('--- Outcome: ' + str(outcome))
-
+            subprocess.run(['bin/simulation', element], env=myEnv)
+    
     print('\n--- Running plotter script:')
-    outcome = subprocess.run('./plotter.py')
-    print('--- Outcome: ' + str(outcome))
+    for key, value in nameDict.items():
+        for element in value:
+            subprocess.run(['./plotter.py', '-m', element[:-5] + '_probability_map.csv', '-r', element[:-5] + '_radial_probability.csv'])
+    

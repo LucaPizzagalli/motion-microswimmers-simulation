@@ -3,6 +3,7 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <thread>
 
 #include "include/json.hpp"
 
@@ -28,9 +29,36 @@ nlohmann::json read_simulation_parameters(std::string filename)
     return simulation_parameters;
 }
 
+void simulate(int simulation_index, Analyzer analyzer)
+{
+    std::cout << "\tSimulation n " << simulation_index + 1 << "...\n";
+
+    Simulation world(physics_parameters["parameters"], physics_parameters["initialConditions"], delta_time_step, n_time_steps, step_size, random_generator);
+    try
+    {
+        for (int i = 0; i < n_time_steps - 1; ++i)
+            world.compute_next_step();
+        analyzer.update_probability_map(&world, 0, n_time_steps, step_size);
+    }
+    catch (std::string error)
+    {
+        std::cout << "ERROR: " << error << "\n";
+    }
+    if (simulation_parameters["visualization"].get<bool>())
+    {
+        std::cout << "\tVisualization...\n";
+#ifdef usesdl
+        Visualization visualization;
+        visualization.render(&world, 0, n_time_steps, step_size);
+#else
+        std::cout << "ERROR: compiled without SDL2\n";
+#endif
+    }
+}
+
 int main(int argc, char *argv[])
 {
-    if(argc != 2)
+    if (argc != 2)
     {
         std::cout << "ERROR: incorrect number of parameters\n";
         return 1;
@@ -52,31 +80,12 @@ int main(int argc, char *argv[])
     std::cout << "Computing simulations and probability map...\n";
     Analyzer analyzer(-map_margin, -map_margin, map_margin, map_margin, simulation_parameters["probability_map_width"].get<int>(), simulation_parameters["probability_map_height"].get<int>());
 
-    for (int simulation_index = 0; simulation_index < simulation_parameters["n_simulations"].get<int>(); ++simulation_index)
+    int simulation_index = 0;
+    int n_thread = 3;
+    while (simulation_index < simulation_parameters["n_simulations"].get<int>())
     {
-        std::cout << "\tSimulation n " << simulation_index + 1 << "...\n";
-
-        Simulation world(physics_parameters["parameters"], physics_parameters["initialConditions"], delta_time_step, n_time_steps, step_size, random_generator);
-        try
-        {
-            for (int i = 0; i < n_time_steps - 1; ++i)
-                world.compute_next_step();
-            analyzer.update_probability_map(&world, 0, n_time_steps, step_size);
-        }
-        catch (std::string error)
-        {
-            std::cout << "ERROR: " << error << "\n";
-        }
-        if (simulation_parameters["visualization"].get<bool>())
-        {
-            std::cout << "\tVisualization...\n";
-            #ifdef usesdl
-                Visualization visualization;
-                visualization.render(&world, 0, n_time_steps, step_size);
-            #else
-                std::cout << "ERROR: compiled without SDL2\n";
-            #endif
-        }
+        simulate(simulation_index, analyzer);
+        simulation_index++;
     }
 
     std::cout << "Computing radial probability...\n";
@@ -88,10 +97,11 @@ int main(int argc, char *argv[])
 
     std::cout << "Saving stuff...\n";
     strm.str("");
-    strm << "output/" << argv[1] << "_probability_map.csv";
+    std::string temp(argv[1]);
+    strm << "output/" << temp.substr(0, temp.length() - 5) << "_probability_map.csv";
     analyzer.save_probability_map(strm.str().c_str());
     strm.str("");
-    strm << "output/" << argv[1] << "_radial_probability.csv";
+    strm << "output/" << temp.substr(0, temp.length() - 5) << "_radial_probability.csv";
     analyzer.save_radial_probability(strm.str().c_str());
 
     gsl_rng_free(random_generator);
