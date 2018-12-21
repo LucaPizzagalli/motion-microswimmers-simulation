@@ -8,13 +8,13 @@
         "cell": {
             "shape": {
                 "body": {
-                    "radius": 5.0
+                    "radius": [2.5, 5.0]
                 },
                 "flagella": {
-                    "radius": 2.5
+                    "radius": 5.0
                 },
                 "BodyFlagellaDistance": 5.0,
-                "rotationCenter": 0
+                "rotationCenter": [2.5, 0]
             },
             "propulsion": {
                 "speed": 100.0,
@@ -45,7 +45,7 @@
             }
         },
         "wall": {
-            "innerRadius": 50.0,
+            "innerRadius": [25.0, 50.0, 75.0, 100.0, 125.0, 150.0, 250.0, 500.0],
             "thickness": 5.0,
             "wallInteraction": {
                 "hardness": 10

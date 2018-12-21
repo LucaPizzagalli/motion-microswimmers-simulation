@@ -72,12 +72,12 @@ def main():
 
     plt.figure(figsize=(8, 8), dpi=80, facecolor='w', edgecolor='k')
     print('Creating radial probability plots...')
-    for filename in glob.glob('output/r_*_radial_probability.csv'):
+    for filename in glob.glob('output/*_radial_probability.csv'):
         plot_radial_probability(filename)
     plt.savefig('output/my_radial_probability.png', bbox_inches='tight')
 
     print('Creating probability map plots...')
-    for filename in glob.glob('output/r_*_probability_map.csv'):
+    for filename in glob.glob('output/*_probability_map.csv'):
         plot_density(filename)
 
 

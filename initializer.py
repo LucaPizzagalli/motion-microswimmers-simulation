@@ -27,7 +27,8 @@ def createMake(gslCompileDir='/usr/local/include', gslLinkDir='/usr/local/lib', 
         make += ' -ggdb'
     if release:
         make += ' -O3'
-    # -lSDL2_image #-pthread
+    make += ' -pthread'
+    # -lSDL2_image
     make += '\nSOURCES = src/*.cpp'
     make += '\nOBJECTS := ${subst src/,,$(SOURCES:.cpp=.o)}'
     make += ('\n\nall: bin/simulation'
@@ -40,6 +41,9 @@ def createMake(gslCompileDir='/usr/local/include', gslLinkDir='/usr/local/lib', 
 
 
 def createFolders():
+    subprocess.run(['rm', '-r', 'obj'])
+    subprocess.run(['rm', '-r', 'input'])
+    subprocess.run(['rm', '-r', 'output'])
     if not os.path.exists('./bin'):
         os.makedirs('./bin')
     if not os.path.exists('./input'):
@@ -154,7 +158,7 @@ def createParameters():
     return nameDict
 
 
-# ./initializer.py -d --SDL2
+# ./initializer.py -d --SDL2 -c
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Compiles, runs simulations and plots results')
     parser.add_argument('-d', '--debug', action='store_true', help='compile in debug mode')
@@ -172,13 +176,12 @@ if __name__ == '__main__':
     nameDict = createParameters()
 
     print('\n--- Creating makefile')
-    # gslCompileDir = str(Path.joinpath(Path().absolute(), 'gsl/include'))
+    # gslCompileDir = str(Pathttps://electrek.co/h.joinpath(Path().absolute(), 'gsl/include'))
     # gslLinkDir = str(Path.joinpath(Path().absolute(), 'gsl/lib'))
     createMake(SDL2=args.SDL2, debug=args.debug, release=args.release, gslCompileDir=args.gslCompileDir, gslLinkDir=args.gslLinkDir)
 
     print('\n--- Compiling code:')
-    outcome = subprocess.run('make')
-    print('--- Outcome: ' + str(outcome))
+    subprocess.run('make')
 
     print('\n--- Running simulation program:')
     myEnv = os.environ.copy()
@@ -186,9 +189,8 @@ if __name__ == '__main__':
     for key, value in nameDict.items():
         print('\n---' + str(key))
         for element in value:
+            print('\n--- bin/simulation ' + element)
             outcome = subprocess.run(['bin/simulation', element], env=myEnv)
-    print('--- Outcome: ' + str(outcome))
 
     print('\n--- Running plotter script:')
-    outcome = subprocess.run('./plotter.py')
-    print('--- Outcome: ' + str(outcome))
+    subprocess.run('./plotter.py')
