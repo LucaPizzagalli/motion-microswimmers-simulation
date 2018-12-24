@@ -9,6 +9,7 @@
 
 class Simulation
 {
+    int n_errors;
     gsl_rng *random_generator;
 
     double delta_time_step;
@@ -21,7 +22,7 @@ class Simulation
 public:
     Simulation(nlohmann::json physics_parameters, nlohmann::json initial_conditions, nlohmann::json simulation_parameters, gsl_rng *random_generator);
     void compute_next_step();
-    void compute_simulation();
+    int compute_simulation();
     double get_delta_time_step();
     Bacterium* get_bacterium();
     void draw_frame(int time_step, Camera *camera);

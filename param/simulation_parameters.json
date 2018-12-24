@@ -3,12 +3,13 @@
         "time": "second"
     },
     "visualization": false,
-    "n_simulations": 10,
+    "n_simulations": 8,
     "duration": 10.0,
-    "time_step": 0.2e-6,
+    "time_step": 1e-6,
     "random_seed": 5,
     "saved_time_step": 1e-4,
     "probability_map_width": 1000,
     "probability_map_height": 1000,
-    "n_threads": 7
+    "n_threads": 4,
+    "throw_errors": false
 }

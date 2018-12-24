@@ -200,7 +200,7 @@ std::string Bacterium::state_to_string(int time_step)
     else
     {
         int memory_slot = time_step / this->step_size;
-        strm << "time-step: " << time_step << "\n";
+        strm << "time-step: " << time_step / this->step_size * this->step_size << "\n";
         strm << "center_x: " << this->center_x[memory_slot] << "\n";
         strm << "center_y: " << this->center_y[memory_slot] << "\n";
         strm << "direction: " << this->direction[memory_slot] << "\n";

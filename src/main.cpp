@@ -34,11 +34,12 @@ nlohmann::json read_simulation_parameters(std::string filename)
     return simulation_parameters;
 }
 
-void thread_simulation(std::mutex *thread_lock, int *simulation_index, nlohmann::json physics_parameters, nlohmann::json simulation_parameters, Analyzer *analyzer, int thread_index)
+void thread_simulation(std::mutex *thread_lock, int *simulation_index, nlohmann::json physics_parameters, nlohmann::json simulation_parameters, Analyzer *analyzer, int thread_index, int *n_simulation_errors)
 {
     gsl_rng_env_setup();
     gsl_rng *random_generator = gsl_rng_alloc(gsl_rng_default);
     gsl_rng_set(random_generator, simulation_parameters["random_seed"].get<int>() + thread_index);
+    int n_thread_simulation_errors = 0;
     bool simulate;
     do
     {
@@ -57,7 +58,7 @@ void thread_simulation(std::mutex *thread_lock, int *simulation_index, nlohmann:
             Simulation world(physics_parameters["parameters"], physics_parameters["initialConditions"], simulation_parameters, random_generator);
             try
             {
-                world.compute_simulation();
+                n_thread_simulation_errors += world.compute_simulation();
             }
             catch (std::string error)
             {
@@ -81,6 +82,10 @@ void thread_simulation(std::mutex *thread_lock, int *simulation_index, nlohmann:
         }
     } while (simulate);
     gsl_rng_free(random_generator);
+    {
+        std::lock_guard<std::mutex> lock(*thread_lock);
+        *n_simulation_errors += n_thread_simulation_errors;
+    }
 }
 
 int main(int argc, char *argv[])
@@ -95,23 +100,25 @@ int main(int argc, char *argv[])
     nlohmann::json physics_parameters = read_physics_parameters(strm.str().c_str());
     nlohmann::json simulation_parameters = read_simulation_parameters("./param/simulation_parameters.json");
 
-    
     double map_margin = physics_parameters["parameters"]["wall"]["innerRadius"].get<double>();
 
     std::cout << "Computing simulations and probability map...\n";
     Analyzer analyzer(-map_margin, -map_margin, map_margin, map_margin, simulation_parameters["probability_map_width"].get<int>(), simulation_parameters["probability_map_height"].get<int>());
 
     int simulation_index = 0;
+    int n_simulation_errors = 0;
     int n_threads = simulation_parameters["n_threads"].get<int>() - 1;
     std::vector<std::thread> threads;
     std::mutex thread_lock;
 
     for (int thread_index = 0; thread_index < n_threads; ++thread_index)
-        threads.push_back(std::thread(thread_simulation, &thread_lock, &simulation_index, physics_parameters, simulation_parameters, &analyzer, thread_index));
-    thread_simulation(&thread_lock, &simulation_index, physics_parameters, simulation_parameters, &analyzer, n_threads);
+        threads.push_back(std::thread(thread_simulation, &thread_lock, &simulation_index, physics_parameters, simulation_parameters, &analyzer, thread_index, &n_simulation_errors));
+    thread_simulation(&thread_lock, &simulation_index, physics_parameters, simulation_parameters, &analyzer, n_threads, &n_simulation_errors);
 
     for (int thread_index = 0; thread_index < n_threads; ++thread_index)
         threads[thread_index].join();
+
+    std::cout << "Total number of simulation errors: " << n_simulation_errors << "\n";
 
     std::cout << "Computing radial probability...\n";
     analyzer.compute_radial_probability(physics_parameters["parameters"]["wall"]["innerRadius"].get<double>(), 0., 0.);
@@ -128,7 +135,6 @@ int main(int argc, char *argv[])
     strm.str("");
     strm << "output/" << temp.substr(0, temp.length() - 5) << "_radial_probability.csv";
     analyzer.save_radial_probability(strm.str().c_str());
-    std::cout << "Fine\n";
 
     return 0;
 }
