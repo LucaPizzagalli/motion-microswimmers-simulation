@@ -157,9 +157,16 @@ def createParameters():
                 json.dump(element, outfile)
     return nameDict
 
+def runSimulations(nameDict):
+    myEnv = os.environ.copy()
+    # myEnv['LD_LIBRARY_PATH'] = gslLinkDir
+    for key, value in nameDict.items():
+        print('\n--- Varying element: ' + str(key))
+        for element in value:
+            print('\n--- bin/simulation ' + element)
+            subprocess.run(['bin/simulation', element], env=myEnv)
 
-# ./initializer.py -d --SDL2 -c
-if __name__ == '__main__':
+def parseArguments():
     parser = argparse.ArgumentParser(description='Compiles, runs simulations and plots results')
     parser.add_argument('-d', '--debug', action='store_true', help='compile in debug mode')
     parser.add_argument('-r', '--release', action='store_true', help='compile in release mode')
@@ -167,7 +174,11 @@ if __name__ == '__main__':
     parser.add_argument('--SDL2', action='store_true', help='do not compile with SDL2 libraries')
     parser.add_argument('-gslC', '--gslCompileDir', action='store', default='/usr/local/include', help='the absolute path of the directory where the gsl library include is installed')
     parser.add_argument('-gslL', '--gslLinkDir', action='store', default='/usr/local/lib', help='the absolute path of the directory where the gsl library lib is installed')
-    args = parser.parse_args()
+    return parser.parse_args()
+
+# ./initializer.py -d --SDL2 -c
+if __name__ == '__main__':
+    args = parseArguments()
     
     print('\n--- Deleting/creating folders if needed')
     createFolders(args.clear)
@@ -182,13 +193,9 @@ if __name__ == '__main__':
 
     print('\n--- Compiling code:')
     subprocess.run('make')
+
     print('\n--- Running simulation program:')
-    myEnv = os.environ.copy()
-    # myEnv['LD_LIBRARY_PATH'] = gslLinkDir
-    for key, value in nameDict.items():
-        print('\n---' + str(key))
-        for element in value:
-            subprocess.run(['bin/simulation', element], env=myEnv)
+    runSimulations(nameDict)
     
     print('\n--- Running plotter script:')
     for key, value in nameDict.items():

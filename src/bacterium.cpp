@@ -168,6 +168,14 @@ double Bacterium::get_body_y()
 {
     return this->prev_center_y;
 }
+double Bacterium::get_flagella_x()
+{
+    return this->prev_center_x + cos(this->prev_direction) * this->body_flagella_distance;
+}
+double Bacterium::get_flagella_y()
+{
+    return this->prev_center_y + sin(this->prev_direction) * this->body_flagella_distance;
+}
 double Bacterium::get_history_body_x(int time_step)
 {
     return this->center_x[time_step / this->step_size];
@@ -176,13 +184,13 @@ double Bacterium::get_history_body_y(int time_step)
 {
     return this->center_y[time_step / this->step_size];
 }
-double Bacterium::get_flagella_x()
+double Bacterium::get_history_flagella_x(int time_step)
 {
-    return this->prev_center_x + cos(this->prev_direction) * this->body_flagella_distance;
+    return this->center_x[time_step / this->step_size] + cos(this->direction[time_step / this->step_size]) * this->body_flagella_distance;
 }
-double Bacterium::get_flagella_y()
+double Bacterium::get_history_flagella_y(int time_step)
 {
-    return this->prev_center_y + sin(this->prev_direction) * this->body_flagella_distance;
+    return this->center_y[time_step / this->step_size] + sin(this->direction[time_step / this->step_size]) * this->body_flagella_distance;
 }
 
 std::string Bacterium::state_to_string(int time_step)
@@ -213,8 +221,8 @@ std::string Bacterium::state_to_string(int time_step)
 
 void Bacterium::draw(int time_step, Camera *camera)
 {
-    double center_x = (this->center_x[time_step / this->step_size] - camera->x) * camera->zoom;
-    double center_y = (this->center_y[time_step / this->step_size] - camera->y) * camera->zoom;
+    double center_x = (this->get_history_body_x(time_step) - camera->x) * camera->zoom;
+    double center_y = (this->get_history_body_y(time_step) - camera->y) * camera->zoom;
     double radius = this->body_radius * camera->zoom;
     for (int x = (int)(center_x - radius); x <= (int)(center_x + radius) + 1; x++)
         for (int y = (int)(center_y - radius); y <= (int)(center_y + radius) + 1; y++)
@@ -222,8 +230,8 @@ void Bacterium::draw(int time_step, Camera *camera)
             double fading = std::max(1 - ((x - center_x) * (x - center_x) + (y - center_y) * (y - center_y)) / (radius * radius), 0.);
             camera->pixels[y][x][1] = int(camera->pixels[y][x][1] * (1 - fading) + 255 * fading);
         }
-    center_x += cos(this->direction[time_step / this->step_size]) * this->flagella_radius * camera->zoom;
-    center_y += sin(this->direction[time_step / this->step_size]) * this->flagella_radius * camera->zoom;
+    center_x = (this->get_history_flagella_x(time_step) - camera->x) * camera->zoom;
+    center_y = (this->get_history_flagella_y(time_step) - camera->y) * camera->zoom;
     radius = this->flagella_radius * camera->zoom;
     for (int x = (int)(center_x - radius); x <= (int)(center_x + radius) + 1; x++)
         for (int y = (int)(center_y - radius); y <= (int)(center_y + radius) + 1; y++)

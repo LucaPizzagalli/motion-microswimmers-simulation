@@ -50,10 +50,12 @@ public:
     double get_flagella_radius();
     double get_body_x();
     double get_body_y();
-    double get_history_body_x(int time_step);
-    double get_history_body_y(int time_step);
     double get_flagella_x();
     double get_flagella_y();
+    double get_history_body_x(int time_step);
+    double get_history_body_y(int time_step);
+    double get_history_flagella_x(int time_step);
+    double get_history_flagella_y(int time_step);
     std::string state_to_string(int time_step = -1);
     void draw(int time_step, Camera *camera);
 

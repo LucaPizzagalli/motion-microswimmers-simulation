@@ -35,7 +35,6 @@ CellForce DiskWall::force_acting_on(Bacterium *bacterium, int *n_errors)
         {
             (*n_errors)++;
             force_body_modulus = 10.0;
-            printf("aa");
             if (this->throw_errors)
             {
                 std::stringstream strm;
@@ -74,7 +73,6 @@ CellForce DiskWall::force_acting_on(Bacterium *bacterium, int *n_errors)
         {
             (*n_errors)++;
             force_flagella_modulus = 10.0;
-            printf("bb %f\n", flagella_distance);
             if (this->throw_errors)
             {
                 std::stringstream strm;

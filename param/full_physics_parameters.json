@@ -11,7 +11,7 @@
                     "radius": 2.5
                 },
                 "flagella": {
-                    "radius": 2.5
+                    "radius": 5.0
                 },
                 "BodyFlagellaDistance": 5.0,
                 "rotationCenter": 0
@@ -37,10 +37,10 @@
             },
             "noise": {
                 "position": {
-                    "strength": 1.0
+                    "strength": 0.001
                 },
                 "direction": {
-                    "strength": 2.0
+                    "strength": 0.1
                 }
             }
         },
