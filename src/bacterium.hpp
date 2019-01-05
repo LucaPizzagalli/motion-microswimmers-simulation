@@ -25,8 +25,10 @@ class Bacterium
     double tumble_duration_std;
 
     double diffusivity, _sqrt_diffusivity;
-    double persistence_time, _sqrt_persistence_time;
     double shear_time;
+
+    double _sqrt_noise_torque_strength;
+    double _sqrt_noise_force_strength;
     
     double prev_center_x, next_center_x;
     double prev_center_y, next_center_y;

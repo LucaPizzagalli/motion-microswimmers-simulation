@@ -35,9 +35,11 @@ Bacterium::Bacterium(nlohmann::json physics_parameters, nlohmann::json initial_c
     nlohmann::json fluid_interaction = physics_parameters["fluidCellInteraction"];
     this->diffusivity = fluid_interaction["diffusivity"].get<double>();
     this->_sqrt_diffusivity = sqrt(this->diffusivity);
-    this->persistence_time = fluid_interaction["persistenceTime"].get<double>();
-    this->_sqrt_persistence_time = sqrt(this->persistence_time);
     this->shear_time = fluid_interaction["shearTime"].get<double>();
+
+    nlohmann::json noise = physics_parameters["noise"];
+    this->_sqrt_noise_force_strength = sqrt(noise["force"]["strength"].get<double>());
+    this->_sqrt_noise_torque_strength = sqrt(noise["torque"]["strength"].get<double>());
 
     this->next_center_x = initial_conditions["position"]["x"].get<double>();
     this->next_center_y = initial_conditions["position"]["y"].get<double>();
@@ -57,12 +59,12 @@ void Bacterium::compute_step(int now, double delta_time_step, CellForce forces)
 
     double torque_z = this->_compute_torque(forces, sin_direction, cos_direction);
 
-    double torque_noise_z = gsl_ran_gaussian(this->random_generator, 1.) * SQRT_2 * this->_sqrt_persistence_time;
+    double torque_noise_z = gsl_ran_gaussian(this->random_generator, 1.) * SQRT_2 * this->_sqrt_noise_torque_strength;
 
     rotation += torque_z / this->shear_time * delta_time_step + torque_noise_z * sqrt_delta_time_step;
 
-    double force_noise_x = gsl_ran_gaussian(this->random_generator, 1.) * SQRT_2 * this->_sqrt_diffusivity;
-    double force_noise_y = gsl_ran_gaussian(this->random_generator, 1.) * SQRT_2 * this->_sqrt_diffusivity;
+    double force_noise_x = gsl_ran_gaussian(this->random_generator, 1.) * SQRT_2 * this->_sqrt_diffusivity * this->_sqrt_noise_force_strength;
+    double force_noise_y = gsl_ran_gaussian(this->random_generator, 1.) * SQRT_2 * this->_sqrt_diffusivity * this->_sqrt_noise_force_strength;
 
     this->next_center_x = this->prev_center_x + (cos_direction * this->speed + this->diffusivity * (forces.body_x + forces.flagella_x)) * delta_time_step + force_noise_x * sqrt_delta_time_step;
     this->next_center_y = this->prev_center_y + (sin_direction * this->speed + this->diffusivity * (forces.body_y + forces.flagella_y)) * delta_time_step + force_noise_y * sqrt_delta_time_step;

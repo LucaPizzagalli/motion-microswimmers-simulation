@@ -32,14 +32,13 @@
             },
             "fluidCellInteraction": {
                 "diffusivity": 250.0,
-                "persistenceTime": 2.0,
                 "shearTime": 0.15
             },
             "noise": {
-                "position": {
+                "force": {
                     "strength": 1.0
                 },
-                "direction": {
+                "torque": {
                     "strength": 2.0
                 }
             }

@@ -187,7 +187,7 @@ if __name__ == '__main__':
     nameDict = createParameters()
 
     print('\n--- Creating makefile')
-    # gslCompileDir = str(Pathttps://electrek.co/h.joinpath(Path().absolute(), 'gsl/include'))
+    # gslCompileDir = str(Path.joinpath(Path().absolute(), 'gsl/include'))
     # gslLinkDir = str(Path.joinpath(Path().absolute(), 'gsl/lib'))
     createMake(SDL2=args.SDL2, debug=args.debug, release=args.release, gslCompileDir=args.gslCompileDir, gslLinkDir=args.gslLinkDir)
 

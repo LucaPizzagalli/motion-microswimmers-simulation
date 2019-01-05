@@ -14,7 +14,7 @@
                     "radius": 5.0
                 },
                 "BodyFlagellaDistance": 5.0,
-                "rotationCenter": 0
+                "rotationCenter": 2.5
             },
             "propulsion": {
                 "speed": 100.0,
@@ -32,15 +32,14 @@
             },
             "fluidCellInteraction": {
                 "diffusivity": 250.0,
-                "persistenceTime": 2.0,
                 "shearTime": 0.15
             },
             "noise": {
-                "position": {
-                    "strength": 0.001
+                "force": {
+                    "strength": 1.0
                 },
-                "direction": {
-                    "strength": 0.1
+                "torque": {
+                    "strength": 2.0
                 }
             }
         },
