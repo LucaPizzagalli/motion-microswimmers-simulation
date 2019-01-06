@@ -9,6 +9,7 @@
 
 class Bacterium
 {
+    bool throw_errors;
     gsl_rng *random_generator;
     int step_size;
 
@@ -46,7 +47,7 @@ class Bacterium
 
 public:
     Bacterium(nlohmann::json physics_parameters, nlohmann::json initial_conditions, nlohmann::json simulation_parameters, gsl_rng *random_generator);
-    void compute_step(int now, double delta_time_step, CellForce forces);
+    void compute_step(int now, double delta_time_step, CellForce forces, int *n_errors);
     void update_state(int now);
     double get_body_radius();
     double get_flagella_radius();

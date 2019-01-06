@@ -34,7 +34,7 @@ void Analyzer::update_probability_map(Simulation *world, int start_time_step, in
 
 void Analyzer::compute_radial_probability(double radius, double center_x, double center_y)
 {
-    double delta_r = 5.;
+    double delta_r = 0.2;
     int n_points = (int)(radius / std::max(this->size_cell_x, this->size_cell_y));
     double d_r = radius / n_points;
     int n_local_points = (int)(delta_r / d_r + 0.5);
@@ -43,7 +43,7 @@ void Analyzer::compute_radial_probability(double radius, double center_x, double
     this->radial_probability_p = std::vector<double>(n_points - n_local_points + 1, 0);
 
     for (int i = 0; i < n_points - n_local_points + 1; i++)
-        this->radial_probability_r[i] = (n_local_points - 1 + i) * d_r;
+        this->radial_probability_r[i] = (n_local_points + i) * d_r;
 
     for (int x = 0; x < this->map_width; x++)
         for (int y = 0; y < this->map_height; y++)

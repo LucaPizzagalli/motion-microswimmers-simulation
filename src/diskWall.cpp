@@ -5,8 +5,6 @@
 
 DiskWall::DiskWall(nlohmann::json physics_parameters, nlohmann::json initial_conditions, nlohmann::json simulation_parameters)
 {
-    this->throw_errors = simulation_parameters["throw_errors"];
-
     this->inner_radius = physics_parameters["innerRadius"].get<double>();
     this->outer_radius = this->inner_radius + physics_parameters["thickness"].get<double>();
     this->hardness = physics_parameters["wallInteraction"]["hardness"].get<double>();
@@ -15,7 +13,7 @@ DiskWall::DiskWall(nlohmann::json physics_parameters, nlohmann::json initial_con
     this->center_y = initial_conditions["position"]["y"].get<double>();
 }
 
-CellForce DiskWall::force_acting_on(Bacterium *bacterium, int *n_errors)
+CellForce DiskWall::force_acting_on(Bacterium *bacterium)
 {
     double x, y;
     double body_e_x, body_e_y, force_body_modulus;
@@ -32,17 +30,7 @@ CellForce DiskWall::force_acting_on(Bacterium *bacterium, int *n_errors)
         body_distance = this->inner_radius - body_distance;
 
         if (body_distance <= 0)
-        {
-            (*n_errors)++;
-            force_body_modulus = 10.0;
-            if (this->throw_errors)
-            {
-                std::stringstream strm;
-                strm << "Cell's body over the wall";
-                strm << bacterium->get_body_x();
-                throw strm.str();
-            }
-        }
+            force_body_modulus = 10000.;
         else if (body_distance < bacterium->get_body_radius() * 1.122462) // 2^(1/6)
         {
             double rad_6 = pow(bacterium->get_body_radius(), 6.);
@@ -70,16 +58,7 @@ CellForce DiskWall::force_acting_on(Bacterium *bacterium, int *n_errors)
         flagella_e_y = -y / flagella_distance;
         flagella_distance = this->inner_radius - flagella_distance;
         if (flagella_distance <= 0)
-        {
-            (*n_errors)++;
-            force_flagella_modulus = 10.0;
-            if (this->throw_errors)
-            {
-                std::stringstream strm;
-                strm << "Cell's Flagella over the wall";
-                throw strm.str();
-            }
-        }
+            force_flagella_modulus = 10000.;
         else if (flagella_distance < bacterium->get_flagella_radius() * 1.122462) // 2^(1/6)
         {
             double rad_6 = pow(bacterium->get_flagella_radius(), 6.);

@@ -7,8 +7,6 @@
 
 class DiskWall
 {
-    bool throw_errors;
-
     double center_x;
     double center_y;
     double inner_radius;
@@ -17,7 +15,7 @@ class DiskWall
 
 public:
     DiskWall(nlohmann::json parameters, nlohmann::json initial_conditions, nlohmann::json simulation_parameters);
-    CellForce force_acting_on(Bacterium *bacterium, int *n_errors);
+    CellForce force_acting_on(Bacterium *bacterium);
     void draw(int time_step, Camera *camera);
 };
 

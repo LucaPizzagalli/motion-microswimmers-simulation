@@ -2,14 +2,14 @@
     "unitOfMeasure": {
         "time": "second"
     },
-    "visualization": true,
-    "n_simulations": 1,
-    "duration": 1.0,
+    "visualization": false,
+    "n_simulations": 30,
+    "duration": 100.0,
     "time_step": 1e-5,
     "random_seed": 5,
     "saved_time_step": 1e-4,
-    "probability_map_width": 1000,
-    "probability_map_height": 1000,
-    "n_threads": 4,
+    "probability_map_width": 10000,
+    "probability_map_height": 10000,
+    "n_threads": 3,
     "throw_errors": false
 }

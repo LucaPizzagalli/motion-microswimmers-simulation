@@ -6,6 +6,7 @@
 
 Bacterium::Bacterium(nlohmann::json physics_parameters, nlohmann::json initial_conditions, nlohmann::json simulation_parameters, gsl_rng *random_generator)
 {
+    this->throw_errors = simulation_parameters["throw_errors"];
     int memory_size = simulation_parameters["n_saved_time_steps"].get<int>();
     this->center_x = std::vector<double>(memory_size, 0);
     this->center_y = std::vector<double>(memory_size, 0);
@@ -50,12 +51,38 @@ Bacterium::Bacterium(nlohmann::json physics_parameters, nlohmann::json initial_c
     this->update_state(0);
 }
 
-void Bacterium::compute_step(int now, double delta_time_step, CellForce forces)
+void Bacterium::compute_step(int now, double delta_time_step, CellForce forces, int *n_errors)
 {
     double sqrt_delta_time_step = sqrt(delta_time_step);
     double sin_direction = sin(this->prev_direction);
     double cos_direction = cos(this->prev_direction);
     double rotation = 0.;
+
+    double delta_x_force = this->diffusivity * (forces.body_x + forces.flagella_x) * delta_time_step;
+    double delta_y_force = this->diffusivity * (forces.body_y + forces.flagella_y) * delta_time_step;
+    double delta_x_y_force = delta_x_force * delta_x_force + delta_y_force * delta_y_force;
+    if (delta_x_y_force > 1.)
+    {
+        (*n_errors)++;
+        printf("%f\n", delta_x_y_force);
+        delta_x_force /= sqrt(delta_x_y_force);
+        delta_y_force /= sqrt(delta_x_y_force);
+        if (this->throw_errors)
+        {
+            std::stringstream strm;
+            strm << "Force on cell too strong";
+            strm << "pos x" << this->prev_center_x;
+            strm << "pos y" << this->prev_center_y;
+            throw strm.str();
+        }
+    }
+
+    double force_noise_x = gsl_ran_gaussian(this->random_generator, 1.) * SQRT_2 * this->_sqrt_diffusivity * this->_sqrt_noise_force_strength;
+    double force_noise_y = gsl_ran_gaussian(this->random_generator, 1.) * SQRT_2 * this->_sqrt_diffusivity * this->_sqrt_noise_force_strength;
+
+    this->next_center_x = this->prev_center_x + cos_direction * this->speed * delta_time_step + delta_x_force + force_noise_x * sqrt_delta_time_step;
+    this->next_center_y = this->prev_center_y + sin_direction * this->speed * delta_time_step + delta_y_force + force_noise_y * sqrt_delta_time_step;
+
 
     double torque_z = this->_compute_torque(forces, sin_direction, cos_direction);
 
@@ -63,11 +90,6 @@ void Bacterium::compute_step(int now, double delta_time_step, CellForce forces)
 
     rotation += torque_z / this->shear_time * delta_time_step + torque_noise_z * sqrt_delta_time_step;
 
-    double force_noise_x = gsl_ran_gaussian(this->random_generator, 1.) * SQRT_2 * this->_sqrt_diffusivity * this->_sqrt_noise_force_strength;
-    double force_noise_y = gsl_ran_gaussian(this->random_generator, 1.) * SQRT_2 * this->_sqrt_diffusivity * this->_sqrt_noise_force_strength;
-
-    this->next_center_x = this->prev_center_x + (cos_direction * this->speed + this->diffusivity * (forces.body_x + forces.flagella_x)) * delta_time_step + force_noise_x * sqrt_delta_time_step;
-    this->next_center_y = this->prev_center_y + (sin_direction * this->speed + this->diffusivity * (forces.body_y + forces.flagella_y)) * delta_time_step + force_noise_y * sqrt_delta_time_step;
 
     rotation += this->_tumble(delta_time_step);
     this->_rotate(rotation, sin_direction, cos_direction);
