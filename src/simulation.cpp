@@ -26,7 +26,8 @@ void Simulation::compute_next_step()
 {
     try
     {
-        CellForce forces = this->disk_wall.force_acting_on(&(this->bacterium));
+        CellForce forces;
+        forces += this->disk_wall.force_acting_on(&(this->bacterium));
         this->bacterium.compute_step(this->time_step, this->delta_time_step, forces, &(this->n_errors));
     }
     catch (std::string error)
