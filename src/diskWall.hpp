@@ -3,20 +3,27 @@
 
 #include "include/json.hpp"
 #include "definition.hpp"
-#include "bacterium.hpp"
+#include "actor.hpp"
 
-class DiskWall
+struct WallInstance: public ActorInstance
+{ };
+
+class DiskWall: public Actor
 {
-    double center_x;
-    double center_y;
+    WallInstance instance;
     double inner_radius;
     double outer_radius;
     double hardness;
 
 public:
     DiskWall(nlohmann::json parameters, nlohmann::json initial_conditions, nlohmann::json simulation_parameters);
-    CellForce force_acting_on(Bacterium *bacterium);
-    void draw(int time_step, Camera *camera);
+    void compute_step(int now, double delta_time_step, ActorForce force, int *n_errors) override;
+    void update_state(int now) override;
+    WallInstance* get_instance(int time_step) override;
+    double get_inner_radius();
+    double get_hardness();
+    std::string state_to_string(int time_step = -1) override;
+    void draw(int time_step, Camera *camera) override;
 };
 
 #endif

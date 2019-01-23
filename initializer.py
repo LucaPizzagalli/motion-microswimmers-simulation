@@ -196,8 +196,8 @@ if __name__ == '__main__':
     print('\n--- Running simulation program:')
     runSimulations(nameDict)
     
-    print('\n--- Running plotter script:')
-    for key, value in nameDict.items():
-        for element in value:
-            subprocess.run(['./plotter.py', '-m', element[:-5] + '_probability_map.csv', '-r', element[:-5] + '_radial_probability.csv'])
+    # print('\n--- Running plotter script:')
+    # for key, value in nameDict.items():
+    #     for element in value:
+    #         subprocess.run(['./plotter.py', '-m', element[:-5] + '_probability_map.csv', '-r', element[:-5] + '_radial_probability.csv'])
     

@@ -3,7 +3,7 @@
 #include <gsl/gsl_integration.h>
 #include <cmath>
 
-#include "bacterium.hpp"
+#include "cell.hpp"
 
 Analyzer::Analyzer(double left_x, double top_y, double right_x, double bottom_y, int map_width, int map_height)
 {
@@ -24,8 +24,8 @@ void Analyzer::update_probability_map(Simulation *world, int start_time_step, in
 {
     for (int time = start_time_step; time < end_time_step; time += step_size)
     {
-        double x = world->get_bacterium()->get_history_body_x(time);
-        double y = world->get_bacterium()->get_history_body_y(time);
+        double x = world->get_actors()[1]->get_instance(time)->x;////
+        double y = world->get_actors()[1]->get_instance(time)->y;////
         if (x > this->probability_map_left_corner_x && x < this->probability_map_right_corner_x && y > this->probability_map_top_corner_y && y < this->probability_map_bottom_corner_y)
             this->probability_map[(int)((x - this->probability_map_left_corner_x) / size_cell_x)][(int)((y - this->probability_map_top_corner_y) / size_cell_y)]++;
     }
@@ -86,7 +86,7 @@ void Analyzer::save_probability_map(const std::string &file_name)
     std::ofstream out(file_name);
     for (auto &row : this->probability_map)
     {
-        for (std::vector<double>::size_type i = 0; i < row.size() - 1; i++)
+        for (unsigned int i = 0; i < row.size() - 1; i++)
             out << row[i] / this->n_map_points << ",";
         out << row[row.size() - 1] / this->n_map_points;
         out << "\n";

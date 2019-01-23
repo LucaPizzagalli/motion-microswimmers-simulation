@@ -9,78 +9,45 @@ DiskWall::DiskWall(nlohmann::json physics_parameters, nlohmann::json initial_con
     this->outer_radius = this->inner_radius + physics_parameters["thickness"].get<double>();
     this->hardness = physics_parameters["wallInteraction"]["hardness"].get<double>();
 
-    this->center_x = initial_conditions["position"]["x"].get<double>();
-    this->center_y = initial_conditions["position"]["y"].get<double>();
+    this->instance.x = initial_conditions["position"]["x"].get<double>();
+    this->instance.y = initial_conditions["position"]["y"].get<double>();
 }
 
-CellForce DiskWall::force_acting_on(Bacterium *bacterium)
+void DiskWall::compute_step(int now, double delta_time_step, ActorForce force, int *n_errors)
+{ }
+
+void DiskWall::update_state(int now)
+{ }
+
+WallInstance* DiskWall::get_instance(int time_step)
 {
-    double x, y;
-    double body_e_x, body_e_y, force_body_modulus;
-    double flagella_e_x, flagella_e_y, force_flagella_modulus;
+    return &instance;
+}
 
-    // force on body
-    x = bacterium->get_body_x() - this->center_x;
-    y = bacterium->get_body_y() - this->center_y;
-    double body_distance = sqrt(x * x + y * y);
-    if (body_distance > 0)
-    {
-        body_e_x = -x / body_distance;
-        body_e_y = -y / body_distance;
-        body_distance = this->inner_radius - body_distance;
+double DiskWall::get_inner_radius()
+{
+    return this->inner_radius;
+}
 
-        if (body_distance <= 0)
-            force_body_modulus = 10000.;
-        else if (body_distance < bacterium->get_body_radius() * 1.122462) // 2^(1/6)
-        {
-            double rad_6 = pow(bacterium->get_body_radius(), 6.);
-            double dist_6 = pow(body_distance, 6.);
-            force_body_modulus = 24 * this->hardness * (2 * rad_6 * rad_6 / (dist_6 * dist_6 * body_distance) - rad_6 / (dist_6 * body_distance));
-        }
-        else
-            force_body_modulus = 0;
-    }
-    else
-    {
-        body_e_x = 0;
-        body_e_y = 0;
-        force_body_modulus = 0;
-    }
+double DiskWall::get_hardness()
+{
+    return this->hardness;
+}
 
-    // force on flagella
-    x = bacterium->get_flagella_x() - this->center_x;
-    y = bacterium->get_flagella_y() - this->center_y;
-
-    double flagella_distance = sqrt(x * x + y * y);
-    if (flagella_distance != 0)
-    {
-        flagella_e_x = -x / flagella_distance;
-        flagella_e_y = -y / flagella_distance;
-        flagella_distance = this->inner_radius - flagella_distance;
-        if (flagella_distance <= 0)
-            force_flagella_modulus = 10000.;
-        else if (flagella_distance < bacterium->get_flagella_radius() * 1.122462) // 2^(1/6)
-        {
-            double rad_6 = pow(bacterium->get_flagella_radius(), 6.);
-            double dist_6 = pow(flagella_distance, 6.);
-            force_flagella_modulus = 24 * this->hardness * (2 * rad_6 * rad_6 / (dist_6 * dist_6 * flagella_distance) - rad_6 / (dist_6 * flagella_distance));
-        }
-        else
-            force_flagella_modulus = 0;
-    }
-    else
-    {
-        flagella_e_x = 0;
-        flagella_e_y = 0;
-        force_flagella_modulus = 0;
-    }
-    return CellForce{force_body_modulus * body_e_x, force_body_modulus * body_e_y, force_flagella_modulus * flagella_e_x, force_flagella_modulus * flagella_e_y};
+std::string DiskWall::state_to_string(int time_step)
+{
+    std::stringstream strm;
+    strm << "time-step: " << time_step << "\n";
+    strm << "center_x: " << this->instance.x << "\n";
+    strm << "center_y: " << this->instance.y << "\n";
+    strm << "inner_radius: " << this->inner_radius << "\n";
+    return strm.str();
 }
 
 void DiskWall::draw(int time_step, Camera *camera)
 {
-    double center_x = (this->center_x - camera->x) * camera->zoom;
-    double center_y = (this->center_y - camera->y) * camera->zoom;
+    double center_x = (this->instance.x - camera->x) * camera->zoom;
+    double center_y = (this->instance.y - camera->y) * camera->zoom;
     double radius = this->outer_radius * camera->zoom;
     double middle_radius = (this->outer_radius + this->inner_radius) / 2 * camera->zoom;
     double thickness = (this->outer_radius - this->inner_radius) / 2 * camera->zoom;
