@@ -19,7 +19,7 @@
 *.app
 
 # Build
-.build/
+build/
 
 # Profiling
 callgrind.out.*
