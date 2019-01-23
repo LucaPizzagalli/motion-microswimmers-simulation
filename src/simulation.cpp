@@ -121,7 +121,7 @@ ForceCouple Simulation::interaction(std::shared_ptr<Actor> actor1, std::shared_p
         {
             flagella_e_x = 0;
             flagella_e_y = 0;
-            force_flagella_modulus = 0;printf("ehy solo una volta"); ////
+            force_flagella_modulus = 0;printf("Hey solo una volta"); ////
         }
         return {ActorForce(0., 0., 0., 0.), ActorForce(force_body_modulus * body_e_x, force_body_modulus * body_e_y, force_flagella_modulus * flagella_e_x, force_flagella_modulus * flagella_e_y)};
     }
