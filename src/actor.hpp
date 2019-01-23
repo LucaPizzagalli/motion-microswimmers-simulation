@@ -49,6 +49,7 @@ class Actor
     virtual ActorInstance* get_instance(int time_step) = 0;
     virtual std::string state_to_string(int time_step) = 0;
     virtual void draw(int time_step, Camera *camera) = 0;
+    virtual ~Actor() { }
 };
 
 #endif

@@ -17,8 +17,9 @@
 *.exe
 *.out
 *.app
-bin/
-Makefile
+
+# Build
+.build/
 
 # Profiling
 callgrind.out.*
@@ -26,6 +27,3 @@ callgrind.out.*
 # Input-Output
 input/
 output/
-
-# Dependencies
-gsl/

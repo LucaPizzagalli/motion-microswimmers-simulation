@@ -7,49 +7,14 @@ import json
 from copy import deepcopy
 
 
-def createMake(gslCompileDir='/usr/local/include', gslLinkDir='/usr/local/lib', SDL2=True, debug=False, release=False):
-    make = 'COMPILER = g++'
-    make += '\nCOMPILER_FLAGS = -std=c++0x -Wall -pedantic -I' + gslCompileDir
-    if debug:
-        make += ' -ggdb'
-    if release:
-        make += ' -O3'
-    else:
-        make += ' -O0'
-    if SDL2:
-        make += ' -Dusesdl'
-    make += '\nLINKER_FLAGS = -std=c++0x -lm -lgsl -lgslcblas -L' + gslLinkDir
-    if SDL2:
-        make += ' -lSDL2 -lSDL2_ttf'
-    if debug:
-        make += ' -ggdb'
-    if release:
-        make += ' -O3'
-    make += ' -pthread'
-    # -lSDL2_image
-    make += '\nSOURCES = src/*.cpp'
-    make += '\nOBJECTS := ${subst src/,,$(SOURCES:.cpp=.o)}'
-    make += ('\n\nall: bin/simulation'
-             '\n\nbin/simulation: $(OBJECTS)'
-             '\n\t$(COMPILER) $(OBJECTS) $(LINKER_FLAGS) -o bin/simulation'
-             '\n\n$(OBJECTS): $(SOURCES) $(SOURCES:.cpp=hpp)'
-             '\n\t$(COMPILER) -c $(SOURCES) $(COMPILER_FLAGS)')
-    with open('Makefile', 'w') as makefile:
-        makefile.write(make)
-
-
 def createFolders(clear):
     if clear:
-        subprocess.run(['rm', '-r', './obj'])
         subprocess.run(['rm', '-r', './input'])
         subprocess.run(['rm', '-r', './output'])
-    if not os.path.exists('./bin'):
-        os.makedirs('./bin')
     if not os.path.exists('./input'):
         os.makedirs('./input')
     if not os.path.exists('./output'):
         os.makedirs('./output')
-
 
 def branchExist(tree, path):
     local = tree
@@ -162,8 +127,8 @@ def runSimulations(nameDict):
     for key, value in nameDict.items():
         print('\n--- Varying element: ' + str(key))
         for element in value:
-            print('\n--- bin/simulation ' + element)
-            subprocess.run(['bin/simulation', element], env=myEnv)
+            print('\n--- build/swimmers-brownian-simulation ' + element)
+            subprocess.run(['build/swimmers-brownian-simulation', element], env=myEnv)
 
 def parseArguments():
     parser = argparse.ArgumentParser(description='Compiles, runs simulations and plots results')
@@ -185,13 +150,8 @@ if __name__ == '__main__':
     print('\n--- Creating parameters files')
     nameDict = createParameters()
 
-    print('\n--- Creating makefile')
-    # gslCompileDir = str(Path.joinpath(Path().absolute(), 'gsl/include'))
-    # gslLinkDir = str(Path.joinpath(Path().absolute(), 'gsl/lib'))
-    createMake(SDL2=args.SDL2, debug=args.debug, release=args.release, gslCompileDir=args.gslCompileDir, gslLinkDir=args.gslLinkDir)
-
     print('\n--- Compiling code:')
-    subprocess.run('make')
+    subprocess.run('ninja', cwd='build')
 
     print('\n--- Running simulation program:')
     runSimulations(nameDict)
