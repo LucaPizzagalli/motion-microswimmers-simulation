@@ -12,7 +12,6 @@ Simulation::Simulation(nlohmann::json physics_parameters, nlohmann::json initial
     this->step_size = simulation_parameters["saved_time_step_size"].get<int>();
     this->actor.push_back(std::make_shared<DiskWall>(physics_parameters["wall"], initial_conditions["wall"], simulation_parameters));
     this->actor.push_back(std::make_shared<Cell>(physics_parameters["cell"], initial_conditions["cell"], simulation_parameters, random_generator));
-    this->actor.push_back(std::make_shared<Cell>(physics_parameters["cell"], initial_conditions["cell"], simulation_parameters, random_generator));
     this->time_step = 1;
 }
 

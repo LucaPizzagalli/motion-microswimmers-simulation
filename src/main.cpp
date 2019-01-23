@@ -7,7 +7,7 @@
 #include <iostream>
 #include <thread>
 
-#include "include/json.hpp"
+#include "nlohmann/json.hpp"
 
 #include "simulation.hpp"
 #include "analyzer.hpp"

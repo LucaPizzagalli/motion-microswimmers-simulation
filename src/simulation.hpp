@@ -2,7 +2,7 @@
 #define SIMULATION_H
 
 #include <gsl/gsl_rng.h>
-#include "include/json.hpp"
+#include "nlohmann/json.hpp"
 #include "definition.hpp"
 #include "diskWall.hpp"
 #include "cell.hpp"

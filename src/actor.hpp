@@ -4,7 +4,6 @@
 #include <gsl/gsl_rng.h>
 #include <sstream>
 
-#include "include/json.hpp"
 #include "definition.hpp"
 
 struct ActorInstance

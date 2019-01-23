@@ -4,7 +4,7 @@
 #include <gsl/gsl_rng.h>
 #include <vector>
 
-#include "include/json.hpp"
+#include "nlohmann/json.hpp"
 #include "definition.hpp"
 #include "actor.hpp"
 
