@@ -20,7 +20,7 @@
 
 # Build
 build/
-subprojects/nlohmann_json*
+subprojects/nlohmann_json-*
 subprojects/packagecache/
 
 # Profiling
