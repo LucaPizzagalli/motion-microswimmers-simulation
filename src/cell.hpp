@@ -8,15 +8,16 @@
 #include "definition.hpp"
 #include "actor.hpp"
 
-struct CellInstance : public ActorInstance
+struct CellInstance
 {
+    Vector2D coord;
     double direction;
     double tumble_countdown;
     double tumble_speed;
     double tumble_duration;
 
     CellInstance(Vector2D coord = {0.,0.}, double direction = 0., double tumble_countdown = 0., double tumble_speed = 0., double tumble_duration = 0.)
-        : ActorInstance(coord), direction(direction), tumble_countdown(tumble_countdown), tumble_speed(tumble_speed), tumble_duration(tumble_duration)
+        : coord(coord), direction(direction), tumble_countdown(tumble_countdown), tumble_speed(tumble_speed), tumble_duration(tumble_duration)
     { }
 };
 
@@ -57,7 +58,6 @@ class Cell : public Actor
     double get_flagella_radius() const;
     Vector2D get_flagella_coord(CellInstance instance) const;
     virtual CellInstance get_instance(int time_step) const;
-    CellInstance* get_instance_to_save(int time_step) override;
     std::string state_to_string(int time_step) const override;
     void draw(int time_step, Camera *camera) const override;
 

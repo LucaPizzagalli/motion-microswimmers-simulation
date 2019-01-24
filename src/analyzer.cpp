@@ -21,13 +21,21 @@ Analyzer::Analyzer(double left_x, double top_y, double right_x, double bottom_y,
 
 void Analyzer::update_probability_map(Simulation *world, int start_time_step, int end_time_step, int step_size)
 {
-    for (int time = start_time_step; time < end_time_step; time += step_size)
+    std::vector<std::shared_ptr<Actor>> actors = world->get_actors();
+    for (unsigned int i = 0; i < actors.size(); i++)
     {
-        Vector2D coord = world->get_actors()[1]->get_instance_to_save(time)->coord;////
-        if (coord[0] > this->probability_map_left_corner_x && coord[0] < this->probability_map_right_corner_x && coord[1] > this->probability_map_top_corner_y && coord[1] < this->probability_map_bottom_corner_y)
-            this->probability_map[(int)((coord[0] - this->probability_map_left_corner_x) / size_cell_x)][(int)((coord[1] - this->probability_map_top_corner_y) / size_cell_y)]++;
+        Cell *cell = dynamic_cast<Cell *>(actors[i].get());
+        if (cell)
+        {
+            for (int time = start_time_step; time < end_time_step; time += step_size)
+            {
+                Vector2D coord = cell->get_instance(time).coord;
+                if (coord[0] > this->probability_map_left_corner_x && coord[0] < this->probability_map_right_corner_x && coord[1] > this->probability_map_top_corner_y && coord[1] < this->probability_map_bottom_corner_y)
+                    this->probability_map[(int)((coord[0] - this->probability_map_left_corner_x) / size_cell_x)][(int)((coord[1] - this->probability_map_top_corner_y) / size_cell_y)]++;
+            }
+            this->n_map_points += (end_time_step - start_time_step) / step_size;
+        }
     }
-    this->n_map_points += (end_time_step - start_time_step) / step_size;
 }
 
 void Analyzer::compute_radial_probability(double radius, double center_x, double center_y)

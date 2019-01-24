@@ -4,12 +4,12 @@
     },
     "visualization": true,
     "n_simulations": 1,
-    "duration": 50.0,
+    "duration": 10.0,
     "time_step": 1e-5,
     "random_seed": 5,
     "saved_time_step": 1e-5,
-    "probability_map_width": 1000,
-    "probability_map_height": 1000,
+    "probability_map_width": 2000,
+    "probability_map_height": 2000,
     "n_threads": 6,
     "throw_errors": false
 }

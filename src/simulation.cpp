@@ -64,77 +64,57 @@ ForceCouple Simulation::interaction(std::shared_ptr<Actor> actor1, std::shared_p
     {
         WallInstance wallInstance1 = diskWall1->get_instance(this->time_step - 1);
         CellInstance cellInstance2 = cell2->get_instance(this->time_step - 1);
+        Vector2D coord1[1], coord2[2], e[2];
+        double distance, force_modulus[2], size[2];
 
-        Vector2D coord, flagella_e, body_e;
-        double distance;
-        double force_body_modulus;
-        double force_flagella_modulus;
+        coord1[0] = wallInstance1.coord;
+        coord2[0] = cellInstance2.coord;
+        coord2[1] = cell2->get_flagella_coord(cellInstance2);
 
-        // force on body
-        coord = cellInstance2.coord - wallInstance1.coord;
-        distance = coord.modulus();
-        if (distance > 0)
+
+        size[0] = cell2->get_body_radius();
+        size[1] = cell2->get_flagella_radius();
+
+        for (int i = 0; i < 2; i++)
         {
-            body_e = coord / (-distance);
-            distance = diskWall1->get_inner_radius() - distance;
-
-            if (distance <= 0)
-                force_body_modulus = 10000.;
-            else if (distance < cell2->get_body_radius() * 1.122462) // 2^(1/6)
+            Vector2D coord = coord2[i % 2] - coord1[0];
+            distance = coord.modulus();
+            if (distance > 0)
             {
-                double rad_6 = pow(cell2->get_body_radius(), 6.);
-                double dist_6 = pow(distance, 6.);
-                force_body_modulus = 24 * diskWall1->get_hardness() * (2 * rad_6 * rad_6 / (dist_6 * dist_6 * distance) - rad_6 / (dist_6 * distance));
+                e[i] = coord / (-distance);
+                distance = diskWall1->get_inner_radius() - distance;
+                if (distance <= 0)
+                    force_modulus[i] = 10000.;
+                else if (distance < size[i] * 1.122462) // 2^(1/6)
+                {
+                    double rad_6 = pow(size[i], 6.);
+                    double dist_6 = pow(distance, 6.);
+                    force_modulus[i] = 24 * diskWall1->get_hardness() * (2 * rad_6 * rad_6 / (dist_6 * dist_6 * distance) - rad_6 / (dist_6 * distance));
+                }
+                else
+                    force_modulus[i] = 0;
             }
             else
-                force_body_modulus = 0;
-        }
-        else
-        {
-            body_e = {0., 0.};
-            force_body_modulus = 0;
-        }
-
-        // force on flagella
-        coord = cell2->get_flagella_coord(cellInstance2) - wallInstance1.coord;
-        distance = coord.modulus();
-        if (distance != 0)
-        {
-            flagella_e = coord / (-distance);
-            distance = diskWall1->get_inner_radius() - distance;
-            if (distance <= 0)
-                force_flagella_modulus = 10000.;
-            else if (distance < cell2->get_flagella_radius() * 1.122462) // 2^(1/6)
             {
-                double rad_6 = pow(cell2->get_flagella_radius(), 6.);
-                double dist_6 = pow(distance, 6.);
-                force_flagella_modulus = 24 * diskWall1->get_hardness() * (2 * rad_6 * rad_6 / (dist_6 * dist_6 * distance) - rad_6 / (dist_6 * distance));
+                e[i] = {0., 0.};
+                force_modulus[i] = 0;
             }
-            else
-                force_flagella_modulus = 0;
         }
-        else
-        {
-            flagella_e = {0., 0.};
-            force_flagella_modulus = 0;
-            printf("Hey solo una volta"); ////
-        }
-        return {ActorForce(), ActorForce(body_e * force_body_modulus, flagella_e * force_flagella_modulus)};
+        ActorForce force1;
+        ActorForce force2(e[0] * force_modulus[0], e[1] * force_modulus[1]);
+        return {force1, force2};
     }
     else if (cell1 && cell2)
     {
         CellInstance cellInstance1 = cell1->get_instance(this->time_step - 1);
         CellInstance cellInstance2 = cell2->get_instance(this->time_step - 1);
-
         Vector2D coord1[2], coord2[2], e[4];
+        double distance, force_modulus[4], size[4];
 
         coord1[0] = cellInstance1.coord;
         coord1[1] = cell1->get_flagella_coord(cellInstance1);
         coord2[0] = cellInstance2.coord;
         coord2[1] = cell2->get_flagella_coord(cellInstance2);
-
-        double distance;
-        double force_modulus[4], size[4];
 
         size[0] = cell1->get_body_radius() + cell2->get_body_radius();
         size[1] = cell1->get_body_radius() + cell2->get_flagella_radius();
@@ -146,12 +126,11 @@ ForceCouple Simulation::interaction(std::shared_ptr<Actor> actor1, std::shared_p
             Vector2D coord = coord2[i % 2] - coord1[i / 2];
             distance = coord.modulus();
             e[i] = coord / distance;
-
             if (distance < size[i] * 1.122462) // 2^(1/6)
             {
                 double rad_6 = pow(size[i], 6.);
                 double dist_6 = pow(distance, 6.);
-                force_modulus[i] = 24 * 10. * (2 * rad_6 * rad_6 / (dist_6 * dist_6 * distance) - rad_6 / (dist_6 * distance)); //cell hardness
+                force_modulus[i] = 24 * 10. /* cell hardness */ * (2 * rad_6 * rad_6 / (dist_6 * dist_6 * distance) - rad_6 / (dist_6 * distance)); /////
             }
             else
                 force_modulus[i] = 0;

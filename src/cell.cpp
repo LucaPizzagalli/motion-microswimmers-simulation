@@ -54,7 +54,7 @@ void Cell::compute_step(int now, double delta_time_step, ActorForce force, int *
 
     Vector2D pos_force = (force[0] + force[1]) * this->diffusivity * delta_time_step;
 
-    if (pos_force.square() > 10.)
+    if (pos_force.square() > 1.)
     {
         (*n_errors)++;
         printf("over delta_f: %f\n", pos_force.modulus());
@@ -70,8 +70,8 @@ void Cell::compute_step(int now, double delta_time_step, ActorForce force, int *
     }
 
     Vector2D force_noise = {
-        0,  //gsl_ran_gaussian(this->random_generator, 1.) * SQRT_2 * this->_sqrt_diffusivity * this->_sqrt_noise_force_strength;
-        0}; //gsl_ran_gaussian(this->random_generator, 1.) * SQRT_2 * this->_sqrt_diffusivity * this->_sqrt_noise_force_strength;
+        gsl_ran_gaussian(this->random_generator, 1.) * SQRT_2 * this->_sqrt_diffusivity * this->_sqrt_noise_force_strength,
+        gsl_ran_gaussian(this->random_generator, 1.) * SQRT_2 * this->_sqrt_diffusivity * this->_sqrt_noise_force_strength};
 
     this->next_instance.coord = this->prev_instance.coord + e_direction * this->speed * delta_time_step + pos_force + force_noise * sqrt_delta_time_step;
 
@@ -162,10 +162,6 @@ Vector2D Cell::get_flagella_coord(CellInstance instance) const
 CellInstance Cell::get_instance(int time_step) const
 {
     return this->instance[time_step / this->step_size];
-}
-CellInstance* Cell::get_instance_to_save(int time_step)
-{
-    return &(this->instance[time_step / this->step_size]);
 }
 std::string Cell::state_to_string(int time_step) const
 {

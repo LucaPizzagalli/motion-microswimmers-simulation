@@ -24,11 +24,6 @@ WallInstance DiskWall::get_instance(int time_step) const
     return instance;
 }
 
-WallInstance* DiskWall::get_instance_to_save(int time_step)
-{
-    return nullptr;////
-}
-
 double DiskWall::get_inner_radius()
 {
     return this->inner_radius;

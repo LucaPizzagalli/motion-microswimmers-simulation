@@ -6,15 +6,6 @@
 
 #include "definition.hpp"
 
-struct ActorInstance
-{
-    Vector2D coord;
-
-    ActorInstance(Vector2D coord = {0., 0.})
-        : coord(coord)
-    {}
-};
-
 struct ActorForce
 {
     Vector2D coord[2];
@@ -45,7 +36,6 @@ class Actor
   public:
     virtual void compute_step(int now, double delta_time_step, ActorForce force, int *n_errors) = 0;
     virtual void update_state(int now) = 0;
-    virtual ActorInstance* get_instance_to_save(int time_step) = 0;
     virtual std::string state_to_string(int time_step) const = 0;
     virtual void draw(int time_step, Camera *camera) const = 0;
     virtual ~Actor() { }
