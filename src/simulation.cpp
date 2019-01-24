@@ -1,5 +1,4 @@
 #include "simulation.hpp"
-#include <cmath>
 #include <gsl/gsl_randist.h>
 #include <sstream>
 
@@ -10,8 +9,11 @@ Simulation::Simulation(nlohmann::json physics_parameters, nlohmann::json initial
     this->delta_time_step = simulation_parameters["time_step"].get<double>();
     this->n_time_steps = simulation_parameters["n_time_steps"].get<double>();
     this->step_size = simulation_parameters["saved_time_step_size"].get<int>();
-    this->actor.push_back(std::make_shared<DiskWall>(physics_parameters["wall"], initial_conditions["wall"], simulation_parameters));
-    this->actor.push_back(std::make_shared<Cell>(physics_parameters["cell"], initial_conditions["cell"], simulation_parameters, random_generator));
+
+    for (unsigned int i = 0; i < initial_conditions["wall"].size(); i++)
+        this->actor.push_back(std::make_shared<DiskWall>(physics_parameters["wall"], initial_conditions["wall"][i], simulation_parameters));
+    for (unsigned int i = 0; i < initial_conditions["cell"].size(); i++)
+        this->actor.push_back(std::make_shared<Cell>(physics_parameters["cell"], initial_conditions["cell"][i], simulation_parameters, random_generator));
     this->time_step = 1;
 }
 
@@ -24,7 +26,7 @@ int Simulation::compute_simulation()
 
 void Simulation::compute_next_step()
 {
-    std::vector<ActorForce> force(this->actor.size(), ActorForce{0., 0., 0., 0.});
+    std::vector<ActorForce> force(this->actor.size(), ActorForce{{0., 0.}, {0., 0.}});
     for (unsigned int i = 0; i < this->actor.size(); i++)
         for (unsigned int j = i + 1; j < this->actor.size(); j++)
         {
@@ -52,7 +54,7 @@ void Simulation::compute_next_step()
         this->actor[i]->update_state(this->time_step);
 }
 
-ForceCouple Simulation::interaction(std::shared_ptr<Actor> actor1, std::shared_ptr<Actor> actor2)
+ForceCouple Simulation::interaction(std::shared_ptr<Actor> actor1, std::shared_ptr<Actor> actor2) const
 {
     DiskWall *diskWall1 = dynamic_cast<DiskWall *>(actor1.get());
     Cell *cell1 = dynamic_cast<Cell *>(actor1.get());
@@ -60,21 +62,20 @@ ForceCouple Simulation::interaction(std::shared_ptr<Actor> actor1, std::shared_p
 
     if (diskWall1 && cell2)
     {
-        WallInstance *wallInstance = diskWall1->get_instance(this->time_step - 1);
-        CellInstance *cellInstance = cell2->get_instance(this->time_step - 1);
+        WallInstance wallInstance1 = diskWall1->get_instance(this->time_step - 1);
+        CellInstance cellInstance2 = cell2->get_instance(this->time_step - 1);
 
-        double x, y, distance;
-        double body_e_x, body_e_y, force_body_modulus;
-        double flagella_e_x, flagella_e_y, force_flagella_modulus;
+        Vector2D coord, flagella_e, body_e;
+        double distance;
+        double force_body_modulus;
+        double force_flagella_modulus;
 
         // force on body
-        x = cellInstance->x - wallInstance->x;
-        y = cellInstance->y - wallInstance->y;
-        distance = sqrt(x * x + y * y);
+        coord = cellInstance2.coord - wallInstance1.coord;
+        distance = coord.modulus();
         if (distance > 0)
         {
-            body_e_x = -x / distance;
-            body_e_y = -y / distance;
+            body_e = coord / (-distance);
             distance = diskWall1->get_inner_radius() - distance;
 
             if (distance <= 0)
@@ -90,23 +91,19 @@ ForceCouple Simulation::interaction(std::shared_ptr<Actor> actor1, std::shared_p
         }
         else
         {
-            body_e_x = 0;
-            body_e_y = 0;
+            body_e = {0., 0.};
             force_body_modulus = 0;
         }
 
         // force on flagella
-        x = cell2->get_flagella_x(cellInstance) - wallInstance->x;
-        y = cell2->get_flagella_y(cellInstance) - wallInstance->y;
-
-        distance = sqrt(x * x + y * y);
+        coord = cell2->get_flagella_coord(cellInstance2) - wallInstance1.coord;
+        distance = coord.modulus();
         if (distance != 0)
         {
-            flagella_e_x = -x / distance;
-            flagella_e_y = -y / distance;
+            flagella_e = coord / (-distance);
             distance = diskWall1->get_inner_radius() - distance;
             if (distance <= 0)
-                force_flagella_modulus =10000.;
+                force_flagella_modulus = 10000.;
             else if (distance < cell2->get_flagella_radius() * 1.122462) // 2^(1/6)
             {
                 double rad_6 = pow(cell2->get_flagella_radius(), 6.);
@@ -118,32 +115,66 @@ ForceCouple Simulation::interaction(std::shared_ptr<Actor> actor1, std::shared_p
         }
         else
         {
-            flagella_e_x = 0;
-            flagella_e_y = 0;
-            force_flagella_modulus = 0;printf("Hey solo una volta"); ////
+            flagella_e = {0., 0.};
+            force_flagella_modulus = 0;
+            printf("Hey solo una volta"); ////
         }
-        return {ActorForce(0., 0., 0., 0.), ActorForce(force_body_modulus * body_e_x, force_body_modulus * body_e_y, force_flagella_modulus * flagella_e_x, force_flagella_modulus * flagella_e_y)};
+        return {ActorForce(), ActorForce(body_e * force_body_modulus, flagella_e * force_flagella_modulus)};
     }
     else if (cell1 && cell2)
     {
-        return {ActorForce(0., 0., 0., 0.), ActorForce(0., 0., 0., 0.)};
+        CellInstance cellInstance1 = cell1->get_instance(this->time_step - 1);
+        CellInstance cellInstance2 = cell2->get_instance(this->time_step - 1);
+
+        Vector2D coord1[2], coord2[2], e[4];
+
+        coord1[0] = cellInstance1.coord;
+        coord1[1] = cell1->get_flagella_coord(cellInstance1);
+        coord2[0] = cellInstance2.coord;
+        coord2[1] = cell2->get_flagella_coord(cellInstance2);
+
+        double distance;
+        double force_modulus[4], size[4];
+
+        size[0] = cell1->get_body_radius() + cell2->get_body_radius();
+        size[1] = cell1->get_body_radius() + cell2->get_flagella_radius();
+        size[2] = cell1->get_flagella_radius() + cell2->get_body_radius();
+        size[3] = cell1->get_flagella_radius() + cell2->get_flagella_radius();
+
+        for (int i = 0; i < 4; i++)
+        {
+            Vector2D coord = coord2[i % 2] - coord1[i / 2];
+            distance = coord.modulus();
+            e[i] = coord / distance;
+
+            if (distance < size[i] * 1.122462) // 2^(1/6)
+            {
+                double rad_6 = pow(size[i], 6.);
+                double dist_6 = pow(distance, 6.);
+                force_modulus[i] = 24 * 10. * (2 * rad_6 * rad_6 / (dist_6 * dist_6 * distance) - rad_6 / (dist_6 * distance)); //cell hardness
+            }
+            else
+                force_modulus[i] = 0;
+        }
+        ActorForce force1(e[0] * (-force_modulus[0]) + e[1] * (-force_modulus[1]), e[2] * (-force_modulus[2]) + e[3] * (-force_modulus[3]));
+        ActorForce force2(e[0] * force_modulus[0] + e[2] * force_modulus[2], e[1] * force_modulus[1] + e[3] * force_modulus[3]);
+        return {force1, force2};
     }
     else
-        printf("ehy qualcosa non va"); ////
-    throw "aa";
+        throw "Interaction not implemented";
 }
 
-std::vector<std::shared_ptr<Actor>> Simulation::get_actors()
+std::vector<std::shared_ptr<Actor>> Simulation::get_actors() const
 {
     return this->actor;
 }
 
-double Simulation::get_delta_time_step()
+double Simulation::get_delta_time_step() const
 {
     return this->delta_time_step;
 }
 
-void Simulation::draw_frame(int time_step, Camera *camera)
+void Simulation::draw_frame(int time_step, Camera *camera) const
 {
     for (unsigned int i = 0; i < this->actor.size(); i++)
         this->actor[i]->draw(time_step, camera);

@@ -52,18 +52,36 @@
         }
     },
     "initialConditions": {
-        "cell": {
-            "position": {
-                "x": 0.0,
-                "y": 0.0
+        "cell": [
+            {
+                "position": {
+                    "x": 0.0,
+                    "y": 0.0
+                },
+                "direction": 0.0
             },
-            "direction": 0.0
-        },
-        "wall": {
-            "position": {
-                "x": 0.0,
-                "y": 0.0
+            {
+                "position": {
+                    "x": 15.0,
+                    "y": 15.0
+                },
+                "direction": -1.5
+            },
+            {
+                "position": {
+                    "x": -15.0,
+                    "y": -15.0
+                },
+                "direction": 3.0
             }
-        }
+        ],
+        "wall": [
+            {
+                "position": {
+                    "x": 0.0,
+                    "y": 0.0
+                }
+            }
+        ]
     }
 }

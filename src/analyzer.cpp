@@ -1,7 +1,6 @@
 #include "analyzer.hpp"
 #include <fstream>
 #include <gsl/gsl_integration.h>
-#include <cmath>
 
 #include "cell.hpp"
 
@@ -24,10 +23,9 @@ void Analyzer::update_probability_map(Simulation *world, int start_time_step, in
 {
     for (int time = start_time_step; time < end_time_step; time += step_size)
     {
-        double x = world->get_actors()[1]->get_instance(time)->x;////
-        double y = world->get_actors()[1]->get_instance(time)->y;////
-        if (x > this->probability_map_left_corner_x && x < this->probability_map_right_corner_x && y > this->probability_map_top_corner_y && y < this->probability_map_bottom_corner_y)
-            this->probability_map[(int)((x - this->probability_map_left_corner_x) / size_cell_x)][(int)((y - this->probability_map_top_corner_y) / size_cell_y)]++;
+        Vector2D coord = world->get_actors()[1]->get_instance_to_save(time)->coord;////
+        if (coord[0] > this->probability_map_left_corner_x && coord[0] < this->probability_map_right_corner_x && coord[1] > this->probability_map_top_corner_y && coord[1] < this->probability_map_bottom_corner_y)
+            this->probability_map[(int)((coord[0] - this->probability_map_left_corner_x) / size_cell_x)][(int)((coord[1] - this->probability_map_top_corner_y) / size_cell_y)]++;
     }
     this->n_map_points += (end_time_step - start_time_step) / step_size;
 }

@@ -8,35 +8,35 @@
 
 struct ActorInstance
 {
-    double x;
-    double y;
+    Vector2D coord;
 
-    ActorInstance(double x = 0., double y = 0.)
-        : x(x), y(y)
+    ActorInstance(Vector2D coord = {0., 0.})
+        : coord(coord)
     {}
 };
 
 struct ActorForce
 {
-    double x;
-    double y;
-    double x2;
-    double y2;
+    Vector2D coord[2];
 
-    ActorForce(double x = 0., double y = 0., double x2 = 0., double y2 = 0.)
-        : x(x), y(y), x2(x2), y2(y2)
-    {}
+    ActorForce(Vector2D coord1 = {0., 0.}, Vector2D coord2 = {0., 0.})
+    {
+        coord[0] = coord1;
+        coord[1] = coord2;
+    }
 
     ActorForce operator+(const ActorForce &other) const
     {
-        return ActorForce(x + other.x, y + other.y, x2 + other.x2, y2 + other.y2);
+        return ActorForce(this->coord[0] + other[0], this->coord[1] + other[1]);
     }
     void operator+=(const ActorForce &other)
     {
-        this->x += other.x;
-        this->y += other.y;
-        this->x2 += other.x2;
-        this->y2 += other.y2;
+        this->coord[0] += other[0];
+        this->coord[1] += other[1];
+    }
+    Vector2D operator[](const int index) const
+    {
+        return this->coord[index];
     }
 };
 
@@ -45,9 +45,9 @@ class Actor
   public:
     virtual void compute_step(int now, double delta_time_step, ActorForce force, int *n_errors) = 0;
     virtual void update_state(int now) = 0;
-    virtual ActorInstance* get_instance(int time_step) = 0;
-    virtual std::string state_to_string(int time_step) = 0;
-    virtual void draw(int time_step, Camera *camera) = 0;
+    virtual ActorInstance* get_instance_to_save(int time_step) = 0;
+    virtual std::string state_to_string(int time_step) const = 0;
+    virtual void draw(int time_step, Camera *camera) const = 0;
     virtual ~Actor() { }
 };
 

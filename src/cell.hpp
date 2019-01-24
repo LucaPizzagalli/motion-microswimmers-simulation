@@ -15,8 +15,8 @@ struct CellInstance : public ActorInstance
     double tumble_speed;
     double tumble_duration;
 
-    CellInstance(double x = 0., double y = 0., double direction = 0., double tumble_countdown = 0., double tumble_speed = 0., double tumble_duration = 0.)
-        : ActorInstance(x, y), direction(direction), tumble_countdown(tumble_countdown), tumble_speed(tumble_speed), tumble_duration(tumble_duration)
+    CellInstance(Vector2D coord = {0.,0.}, double direction = 0., double tumble_countdown = 0., double tumble_speed = 0., double tumble_duration = 0.)
+        : ActorInstance(coord), direction(direction), tumble_countdown(tumble_countdown), tumble_speed(tumble_speed), tumble_duration(tumble_duration)
     { }
 };
 
@@ -56,18 +56,18 @@ class Cell : public Actor
     Cell(nlohmann::json physics_parameters, nlohmann::json initial_conditions, nlohmann::json simulation_parameters, gsl_rng *random_generator);
     void compute_step(int now, double delta_time_step, ActorForce force, int *n_errors) override;
     void update_state(int now) override;
-    double get_body_radius();
-    double get_flagella_radius();
-    double get_flagella_x(CellInstance *instance);
-    double get_flagella_y(CellInstance *instance);
-    virtual CellInstance *get_instance(int time_step) override;
-    std::string state_to_string(int time_step) override;
-    void draw(int time_step, Camera *camera) override;
+    double get_body_radius() const;
+    double get_flagella_radius() const;
+    Vector2D get_flagella_coord(CellInstance instance) const;
+    virtual CellInstance get_instance(int time_step) const;
+    CellInstance* get_instance_to_save(int time_step) override;
+    std::string state_to_string(int time_step) const override;
+    void draw(int time_step, Camera *camera) const override;
 
   protected:
-    double _compute_torque(ActorForce force, double sin_direction, double cos_direction);
+    double _compute_torque(ActorForce force, Vector2D e_direction);
     double _tumble(double delta_time_step);
-    void _rotate(double rotation, double sin_direction, double cos_direction);
+    void _rotate(double rotation, Vector2D e_direction);
 };
 
 #endif

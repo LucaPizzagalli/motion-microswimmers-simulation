@@ -102,9 +102,12 @@ def fromListToDict(data):
 
 def createParameters():
     with open('./param/article_physics_parameters.json') as f:
-        articleData = json.load(f)
+        articleData = json.load(f)["parameters"]
     with open('./param/full_physics_parameters.json') as f:
         fullData = json.load(f)
+        unitOfMeasure = fullData["unitOfMeasure"]
+        initialConditions = fullData["initialConditions"]
+        fullData = fullData["parameters"]
 
     # fullData = {"1":{"H":"H","A":["A","W"]},"2":2,"3":{"U":"U"}}
     # articleData = {"1":{"H":"H","A":"A"},"2":2,"3":{"3":{"U":"U"}}}
@@ -117,8 +120,9 @@ def createParameters():
         for index, element in enumerate(value):
             filename = '_'.join(key) + '_' + str(index) + '.json'
             nameDict[key].append(filename)
+            output = {"unitOfMeasure": unitOfMeasure, "parameters": element, "initialConditions": initialConditions}
             with open('input/' + filename, 'w') as outfile:
-                json.dump(element, outfile)
+                json.dump(output, outfile)
     return nameDict
 
 def runSimulations(nameDict):

@@ -29,10 +29,10 @@ public:
     Simulation(nlohmann::json physics_parameters, nlohmann::json initial_conditions, nlohmann::json simulation_parameters, gsl_rng *random_generator);
     void compute_next_step();
     int compute_simulation();
-    ForceCouple interaction(std::shared_ptr<Actor> actor1, std::shared_ptr<Actor> actor2);
-    double get_delta_time_step();
-    std::vector<std::shared_ptr<Actor>> get_actors();
-    void draw_frame(int time_step, Camera *camera);
+    ForceCouple interaction(std::shared_ptr<Actor> actor1, std::shared_ptr<Actor> actor2) const;
+    double get_delta_time_step() const;
+    std::vector<std::shared_ptr<Actor>> get_actors() const;
+    void draw_frame(int time_step, Camera *camera) const;
 };
 
 #endif
