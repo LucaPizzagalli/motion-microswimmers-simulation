@@ -8,9 +8,6 @@ Cell::Cell(nlohmann::json physics_parameters, nlohmann::json initial_conditions,
     this->throw_errors = simulation_parameters["throw_errors"];
     int memory_size = simulation_parameters["n_saved_time_steps"].get<int>();
     this->instance = std::vector<CellInstance>(memory_size, CellInstance({0., 0.}, 0., 0., 0., 0.));
-    this->tumble_countdown = std::vector<double>(memory_size, 0);
-    this->tumble_speed = std::vector<double>(memory_size, 0);
-    this->tumble_duration = std::vector<double>(memory_size, 0);
 
     this->random_generator = random_generator;
     this->step_size = simulation_parameters["saved_time_step_size"].get<int>();
@@ -178,9 +175,9 @@ std::string Cell::state_to_string(int time_step) const
     strm << "center_x: " << this->instance[memory_slot].coord[0] << "\n";
     strm << "center_y: " << this->instance[memory_slot].coord[1] << "\n";
     strm << "direction: " << this->instance[memory_slot].direction << "\n";
-    strm << "tumble_countdown: " << this->tumble_countdown[memory_slot] << "\n";
-    strm << "tumble_speed: " << this->tumble_speed[memory_slot] << "\n";
-    strm << "tumble_duration: " << this->tumble_duration[memory_slot] << "\n";
+    strm << "tumble_countdown: " << this->instance[memory_slot].tumble_countdown << "\n";
+    strm << "tumble_speed: " << this->instance[memory_slot].tumble_speed << "\n";
+    strm << "tumble_duration: " << this->instance[memory_slot].tumble_duration << "\n";
     return strm.str();
 }
 
@@ -201,14 +198,14 @@ void Cell::draw(int time_step, Camera *camera) const
         for (int y = (int)(center[1] - radius); y <= (int)(center[1] + radius) + 1; y++)
         {
             double fading = std::max(1 - (center - Vector2D{(double)x, (double)y}).square() / (radius * radius), 0.);
-            if (this->tumble_duration[time_step / this->step_size] > 0)
+            if (this->instance[time_step / this->step_size].tumble_duration > 0)
             {
                 // int color = (int)(127.5 + tumble_speed[time_step/this->step_size] * 50);/////
                 // camera->pixels[y][x][1] = int(camera->pixels[y][x][1] * (1 - fading) + color * fading);
             }
             else
             {
-                int color = (int)(255 * std::max(0., 1 - this->tumble_countdown[time_step / this->step_size] / this->tumble_delay_mean));
+                int color = (int)(255 * std::max(0., 1 - this->instance[time_step / this->step_size].tumble_countdown / this->tumble_delay_mean));
                 camera->pixels[y][x][0] = int(camera->pixels[y][x][0] * (1 - fading) + (255 - color) * fading);
                 camera->pixels[y][x][2] = int(camera->pixels[y][x][2] * (1 - fading) + color * fading);
             }

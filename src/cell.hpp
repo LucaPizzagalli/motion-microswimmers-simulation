@@ -48,9 +48,6 @@ class Cell : public Actor
     CellInstance next_instance;
 
     std::vector<CellInstance> instance;
-    std::vector<double> tumble_countdown;
-    std::vector<double> tumble_speed;
-    std::vector<double> tumble_duration;
 
   public:
     Cell(nlohmann::json physics_parameters, nlohmann::json initial_conditions, nlohmann::json simulation_parameters, gsl_rng *random_generator);

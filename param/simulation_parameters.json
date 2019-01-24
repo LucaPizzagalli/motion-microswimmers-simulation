@@ -4,7 +4,7 @@
     },
     "visualization": true,
     "n_simulations": 1,
-    "duration": 9.0,
+    "duration": 50.0,
     "time_step": 1e-5,
     "random_seed": 5,
     "saved_time_step": 1e-5,
