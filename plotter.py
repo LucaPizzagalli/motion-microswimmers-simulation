@@ -52,6 +52,13 @@ def plot_radial_probability(filename):
     plt.savefig(filename[:-4] + '.png', bbox_inches='tight')
 
 
+def plot_displacement(filename):
+    plt.figure(figsize=(8, 8), dpi=80, facecolor='w', edgecolor='k')
+    displacement = np.loadtxt(filename, delimiter=',')
+    plt.plot(displacement[:, 0], displacement[:, 1])
+    plt.savefig(filename[:-4] + '.png', bbox_inches='tight')
+
+
 def plot_density(filename):
     probabilityMap = np.loadtxt(filename, delimiter=',')
     plt.imshow(probabilityMap, cmap='hot', interpolation='nearest')
@@ -73,19 +80,25 @@ def plot_traj(pos_x, pos_y):
 
 def main():
     parser = argparse.ArgumentParser(description='Plots stuff')
-    parser.add_argument('-m', '--mapFile', action='store', help='map propability file')
-    parser.add_argument('-r', '--radialFile', action='store', help='radial probability file')
+    parser.add_argument('-m', '--mapFile', action='store', default='', help='map propability file')
+    parser.add_argument('-r', '--radialFile', action='store', default='', help='radial probability file')
+    parser.add_argument('-d', '--displacementFile', action='store', default='', help='displacement probability file')
     args = parser.parse_args()
 
     # plot_force()
     # plot_my_distribution()
 
-    print('Creating radial probability plot...')
+    if(len(args.mapFile)>0):
+        print('Creating probability map plot...')
+        plot_density('output/' + args.mapFile)
 
-    plot_radial_probability('output/' + args.radialFile)
+    if(len(args.radialFile)>0):
+        print('Creating radial probability plot...')
+        plot_radial_probability('output/' + args.radialFile)
 
-    print('Creating probability map plot...')
-    plot_density('output/' + args.mapFile)
+    if(len(args.displacementFile)>0):
+        print('Creating displacement probability plot...')
+        plot_displacement('output/' + args.displacementFile)
 
 
 if __name__ == '__main__':

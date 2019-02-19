@@ -67,7 +67,7 @@ void thread_simulation(std::mutex *thread_lock, int *simulation_index, nlohmann:
             }
             {
                 std::lock_guard<std::mutex> lock(*thread_lock);
-                analyzer->update_probability_map(&world, 0, simulation_parameters["n_time_steps"].get<int>(), simulation_parameters["saved_time_step_size"].get<int>());
+                analyzer->update_stats(&world, 0, simulation_parameters["n_time_steps"].get<int>(), simulation_parameters["saved_time_step_size"].get<int>());
                 if (simulation_parameters["visualization"].get<bool>())
                 {
                     std::cout << "\tVisualization...\n";
@@ -100,10 +100,9 @@ int main(int argc, char *argv[])
     nlohmann::json physics_parameters = read_physics_parameters(strm.str().c_str());
     nlohmann::json simulation_parameters = read_simulation_parameters("./param/simulation_parameters.json");
 
-    double map_margin = physics_parameters["parameters"]["wall"]["innerRadius"].get<double>();
-
     std::cout << "Computing simulations and probability map...\n";
-    Analyzer analyzer(-map_margin, -map_margin, map_margin, map_margin, simulation_parameters["probability_map_width"].get<int>(), simulation_parameters["probability_map_height"].get<int>());
+
+    Analyzer analyzer(simulation_parameters, physics_parameters["parameters"]);
 
     int simulation_index = 0;
     int n_simulation_errors = 0;
@@ -120,21 +119,14 @@ int main(int argc, char *argv[])
 
     std::cout << "Total number of simulation errors: " << n_simulation_errors << "\n";
 
-    std::cout << "Computing radial probability...\n";
-    analyzer.compute_radial_probability(physics_parameters["parameters"]["wall"]["innerRadius"].get<double>(), 0., 0.);
+    std::cout << "Computing stats...\n";
+    analyzer.compute_stats();
 
-    std::cout << "Computing near-wall probability...  ";
-    double near_wall = analyzer.compute_near_wall_probability(physics_parameters["parameters"]["wall"]["innerRadius"].get<double>());
-    std::cout << near_wall << "\n";
-
-    std::cout << "Saving stuff...\n";
+    std::cout << "Saving stats...\n";
     strm.str("");
     std::string temp(argv[1]);
-    strm << "output/" << temp.substr(0, temp.length() - 5) << "_probability_map.csv";
-    analyzer.save_probability_map(strm.str().c_str());
-    strm.str("");
-    strm << "output/" << temp.substr(0, temp.length() - 5) << "_radial_probability.csv";
-    analyzer.save_radial_probability(strm.str().c_str());
+    strm << "output/" << temp.substr(0, temp.length() - 5);
+    analyzer.save_stats(strm.str().c_str());
 
     return 0;
 }

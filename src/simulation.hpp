@@ -4,14 +4,13 @@
 #include <gsl/gsl_rng.h>
 #include "nlohmann/json.hpp"
 #include "definition.hpp"
-#include "diskWall.hpp"
+#include "wallDisk.hpp"
+#include "wallTop.hpp"
+#include "wallBottom.hpp"
+#include "wallLeft.hpp"
+#include "wallRight.hpp"
 #include "cell.hpp"
-
-struct ForceCouple
-{
-    ActorForce a;
-    ActorForce b;
-};
+#include "map.hpp"
 
 class Simulation
 {
@@ -23,15 +22,24 @@ class Simulation
     int time_step;
     int step_size;
 
-    std::vector<std::shared_ptr<Actor>> actor;
+    Map map;
+
+    std::vector<Cell> cell;
+    bool isWallDisk;
+    WallDisk wallDisk;
+    bool isWallTop;
+    WallTop wallTop;
+    WallBottom wallBottom;
+    WallLeft wallLeft;
+    WallRight wallRight;
+
 
 public:
     Simulation(nlohmann::json physics_parameters, nlohmann::json initial_conditions, nlohmann::json simulation_parameters, gsl_rng *random_generator);
     void compute_next_step();
     int compute_simulation();
-    ForceCouple interaction(std::shared_ptr<Actor> actor1, std::shared_ptr<Actor> actor2) const;
     double get_delta_time_step() const;
-    std::vector<std::shared_ptr<Actor>> get_actors() const;
+    std::vector<Cell> get_cells() const;
     void draw_frame(int time_step, Camera *camera) const;
 };
 

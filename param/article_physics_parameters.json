@@ -39,12 +39,40 @@
                     "strength": 1.0
                 },
                 "torque": {
-                    "strength": 2.0
+                    "strength": 0.5
                 }
             }
         },
-        "wall": {
-            "innerRadius": 50.0,
+        "wallDisk": {
+            "innerRadius": 100.0,
+            "thickness": 5.0,
+            "wallInteraction": {
+                "hardness": 10
+            }
+        },
+        "wallTop": {
+            "y": 100.0,
+            "thickness": 5.0,
+            "wallInteraction": {
+                "hardness": 10
+            }
+        },
+        "wallBottom": {
+            "y": -10.0,
+            "thickness": 5.0,
+            "wallInteraction": {
+                "hardness": 10
+            }
+        },
+        "wallLeft": {
+            "x": -50.0,
+            "thickness": 5.0,
+            "wallInteraction": {
+                "hardness": 10
+            }
+        },
+        "wallRight": {
+            "x": 50.0,
             "thickness": 5.0,
             "wallInteraction": {
                 "hardness": 10

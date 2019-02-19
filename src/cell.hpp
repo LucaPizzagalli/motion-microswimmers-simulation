@@ -7,6 +7,7 @@
 #include "nlohmann/json.hpp"
 #include "definition.hpp"
 #include "actor.hpp"
+#include "map.hpp"
 
 struct CellInstance
 {
@@ -16,12 +17,13 @@ struct CellInstance
     double tumble_speed;
     double tumble_duration;
 
-    CellInstance(Vector2D coord = {0.,0.}, double direction = 0., double tumble_countdown = 0., double tumble_speed = 0., double tumble_duration = 0.)
+    CellInstance(Vector2D coord = {0., 0.}, double direction = 0., double tumble_countdown = 0., double tumble_speed = 0., double tumble_duration = 0.)
         : coord(coord), direction(direction), tumble_countdown(tumble_countdown), tumble_speed(tumble_speed), tumble_duration(tumble_duration)
-    { }
+    {
+    }
 };
 
-class Cell : public Actor
+class Cell: public Actor
 {
     bool throw_errors;
     gsl_rng *random_generator;
@@ -51,18 +53,19 @@ class Cell : public Actor
     std::vector<CellInstance> instance;
 
   public:
-    Cell(nlohmann::json physics_parameters, nlohmann::json initial_conditions, nlohmann::json simulation_parameters, gsl_rng *random_generator);
-    void compute_step(int now, double delta_time_step, ActorForce force, int *n_errors) override;
-    void update_state(int now) override;
+    Cell(nlohmann::json physics_parameters, nlohmann::json initial_conditions, nlohmann::json simulation_parameters, gsl_rng *random_generator, Map *map);
+    void compute_step(int now, double delta_time_step, CellForce force, int *n_errors);
+    void update_state(int now, Map *map);
     double get_body_radius() const;
     double get_flagella_radius() const;
     Vector2D get_flagella_coord(CellInstance instance) const;
-    virtual CellInstance get_instance(int time_step) const;
-    std::string state_to_string(int time_step) const override;
-    void draw(int time_step, Camera *camera) const override;
+    CellInstance get_instance(int time_step) const;
+    CellForce interaction(Cell* cell, int now) override;
+    std::string state_to_string(int time_step) const;
+    void draw(int time_step, Camera *camera) const;
 
   protected:
-    double _compute_torque(ActorForce force, Vector2D e_direction);
+    double _compute_torque(CellForce force, Vector2D e_direction);
     double _tumble(double delta_time_step);
     void _rotate(double rotation, Vector2D e_direction);
 };

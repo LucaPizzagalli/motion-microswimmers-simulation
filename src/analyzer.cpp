@@ -1,48 +1,88 @@
 #include "analyzer.hpp"
+#include <sstream>
 #include <fstream>
 #include <gsl/gsl_integration.h>
 
 #include "cell.hpp"
 
-Analyzer::Analyzer(double left_x, double top_y, double right_x, double bottom_y, int map_width, int map_height)
+Analyzer::Analyzer(nlohmann::json simulation_parameters, nlohmann::json physics_parameters)
 {
-    this->map_width = map_width;
-    this->map_height = map_height;
-    this->probability_map = std::vector<std::vector<double>>(map_width, std::vector<double>(map_height, 0));
-    this->n_map_points = 0;
+    this->map_stats = simulation_parameters["compute_probability_map"].get<bool>();
+    if (this->map_stats)
+    {
+        this->map_width = simulation_parameters["probability_map_width"].get<int>();
+        this->map_height = simulation_parameters["probability_map_height"].get<int>();
+        this->probability_map = std::vector<std::vector<double>>(map_width, std::vector<double>(map_height, 0));
+        this->n_map_points = 0;
 
-    this->probability_map_left_corner_x = left_x;
-    this->probability_map_top_corner_y = top_y;
-    this->probability_map_right_corner_x = right_x;
-    this->probability_map_bottom_corner_y = bottom_y;
-    this->size_cell_x = (this->probability_map_right_corner_x - this->probability_map_left_corner_x) / map_width;
-    this->size_cell_y = (this->probability_map_bottom_corner_y - this->probability_map_top_corner_y) / map_height;
+        this->wall_radius = physics_parameters["wallDisk"]["innerRadius"].get<double>();
+        this->probability_map_left_corner_x = -this->wall_radius;
+        this->probability_map_top_corner_y = -this->wall_radius;
+        this->probability_map_right_corner_x = this->wall_radius;
+        this->probability_map_bottom_corner_y = this->wall_radius;
+        this->size_cell_x = (this->probability_map_right_corner_x - this->probability_map_left_corner_x) / map_width;
+        this->size_cell_y = (this->probability_map_bottom_corner_y - this->probability_map_top_corner_y) / map_height;
+    }
+
+    this->displacement_stats = simulation_parameters["compute_displacement"].get<bool>();
+    if (this->displacement_stats)
+    {
+        double memory_size = simulation_parameters["n_saved_time_steps"].get<int>();
+        this->time_step_size = simulation_parameters["time_step"].get<double>();
+        this->displacement = std::vector<double>(memory_size, 0);
+        this->n_tracks = 0;
+    }
 }
 
-void Analyzer::update_probability_map(Simulation *world, int start_time_step, int end_time_step, int step_size)
+void Analyzer::update_stats(Simulation *world, int start_time_step, int end_time_step, int step_size)
 {
-    std::vector<std::shared_ptr<Actor>> actors = world->get_actors();
-    for (unsigned int i = 0; i < actors.size(); i++)
+    std::vector<Cell> cell = world->get_cells();
+    for (unsigned int i = 0; i < cell.size(); i++)
     {
-        Cell *cell = dynamic_cast<Cell *>(actors[i].get());
-        if (cell)
+        if (this->map_stats)
         {
             for (int time = start_time_step; time < end_time_step; time += step_size)
             {
-                Vector2D coord = cell->get_instance(time).coord;
+                Vector2D coord = cell[i].get_instance(time).coord;
                 if (coord[0] > this->probability_map_left_corner_x && coord[0] < this->probability_map_right_corner_x && coord[1] > this->probability_map_top_corner_y && coord[1] < this->probability_map_bottom_corner_y)
                     this->probability_map[(int)((coord[0] - this->probability_map_left_corner_x) / size_cell_x)][(int)((coord[1] - this->probability_map_top_corner_y) / size_cell_y)]++;
             }
             this->n_map_points += (end_time_step - start_time_step) / step_size;
         }
+        if (this->displacement_stats)
+        {
+            for (int time = start_time_step; time < end_time_step; time += step_size)
+            {
+                Vector2D coord = cell[i].get_instance(time).coord;
+                this->displacement[time] += coord * coord;
+            }
+            this->n_tracks++;
+        }
     }
 }
 
-void Analyzer::compute_radial_probability(double radius, double center_x, double center_y)
+void Analyzer::compute_stats()
 {
-    double delta_r = 0.2;
-    int n_points = (int)(radius / std::max(this->size_cell_x, this->size_cell_y));
-    double d_r = radius / n_points;
+    if (this->map_stats)
+    {
+        this->compute_radial_probability(0., 0.);
+        this->compute_near_wall_probability();
+    }
+    if (this->displacement_stats)
+        this->compute_displacement();
+}
+
+void Analyzer::compute_displacement()
+{
+    for (unsigned int i = 0; i < this->displacement.size(); i++)
+        this->displacement[i] /= n_tracks;
+}
+
+void Analyzer::compute_radial_probability(double center_x, double center_y)
+{
+    double delta_r = 0.5;
+    int n_points = (int)(this->wall_radius / std::max(this->size_cell_x, this->size_cell_y));
+    double d_r = this->wall_radius / n_points;
     int n_local_points = (int)(delta_r / d_r + 0.5);
     std::vector<double> local_p = std::vector<double>(n_points, 0);
     this->radial_probability_r = std::vector<double>(n_points - n_local_points + 1, 0);
@@ -76,15 +116,37 @@ void Analyzer::compute_radial_probability(double radius, double center_x, double
         this->radial_probability_p[i] /= integral;
 }
 
-double Analyzer::compute_near_wall_probability(double radius)
+void Analyzer::compute_near_wall_probability()
 {
     double near_wall = 15; //15 micrometer
     double dr = this->radial_probability_r[1] - this->radial_probability_r[0];
     double probability = 0;
     for (unsigned int i = 0; i < this->radial_probability_r.size(); i++)
-        if (this->radial_probability_r[i] < radius - near_wall)
+        if (this->radial_probability_r[i] < this->wall_radius - near_wall)
             probability += this->radial_probability_p[i] * dr;
-    return 1 - radius / (radius - near_wall) * probability;
+    this->near_wall_probability = 1 - this->wall_radius / (this->wall_radius - near_wall) * probability;
+}
+
+void Analyzer::save_stats(const std::string &file_name)
+{
+    if (this->map_stats)
+    {
+        std::stringstream strm;
+        strm << file_name << "_probability_map.csv";
+        this->save_probability_map(strm.str().c_str());
+        strm.str("");
+        strm << file_name << "_radial_probability.csv";
+        this->save_radial_probability(strm.str().c_str());
+        strm.str("");
+        strm << file_name << "_near_wall_probability.csv";
+        this->save_near_wall_probability(strm.str().c_str());
+    }
+    if (this->displacement_stats)
+    {
+        std::stringstream strm;
+        strm << file_name << "_displacement.csv";
+        this->save_displacement(strm.str().c_str());
+    }
 }
 
 void Analyzer::save_probability_map(const std::string &file_name)
@@ -105,5 +167,20 @@ void Analyzer::save_radial_probability(const std::string &file_name)
     std::ofstream out(file_name);
     for (unsigned int i = 0; i < this->radial_probability_r.size(); i++)
         out << this->radial_probability_r[i] << "," << this->radial_probability_p[i] << "\n";
+    out.close();
+}
+
+void Analyzer::save_near_wall_probability(const std::string &file_name)
+{
+    std::ofstream out(file_name);
+    out << this->wall_radius << "," << this->near_wall_probability;
+    out.close();
+}
+
+void Analyzer::save_displacement(const std::string &file_name)
+{
+    std::ofstream out(file_name);
+    for (unsigned int i = 0; i < this->displacement.size(); i++)
+        out << this->time_step_size*i << "," << this->displacement[i] << "\n";
     out.close();
 }

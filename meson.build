@@ -12,6 +12,6 @@ depSdl2_ttf = dependency('SDL2_ttf')
 depGsl = dependency('gsl')
 depThreads = dependency('threads')
 
-sources = ['src/actor.cpp', 'src/analyzer.cpp', 'src/cell.cpp', 'src/diskWall.cpp', 'src/main.cpp', 'src/simulation.cpp', 'src/visualization.cpp', 'src/definition.hpp']
+sources = ['src/actor.cpp','src/map.cpp', 'src/wallLeft.cpp', 'src/wallRight.cpp', 'src/wallTop.cpp', 'src/wallBottom.cpp', 'src/analyzer.cpp', 'src/cell.cpp', 'src/wallDisk.cpp', 'src/main.cpp', 'src/simulation.cpp', 'src/visualization.cpp', 'src/definition.hpp']
 
 executable('swimmers-brownian-simulation', sources, dependencies : [depSdl2, depSdl2_ttf, depGsl, depThreads, nlohmann_json_dep])

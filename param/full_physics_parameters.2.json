@@ -43,38 +43,8 @@
                 }
             }
         },
-        "wallDisk": {
-            "x": 0.0,
-            "y": 0.0,
-            "innerRadius": 50.0,
-            "thickness": 5.0,
-            "wallInteraction": {
-                "hardness": 10
-            }
-        },
-        "wallTop": {
-            "y": -400.0,
-            "thickness": 5.0,
-            "wallInteraction": {
-                "hardness": 10
-            }
-        },
-        "wallBottom": {
-            "y": 150.0,
-            "thickness": 5.0,
-            "wallInteraction": {
-                "hardness": 10
-            }
-        },
-        "wallLeft": {
-            "x": -150.0,
-            "thickness": 5.0,
-            "wallInteraction": {
-                "hardness": 10
-            }
-        },
-        "wallRight": {
-            "x": 150.0,
+        "wall": {
+            "innerRadius": 100.0,
             "thickness": 5.0,
             "wallInteraction": {
                 "hardness": 10

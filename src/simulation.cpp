@@ -2,18 +2,29 @@
 #include <gsl/gsl_randist.h>
 #include <sstream>
 
+#include <iostream>/////
+
+
 Simulation::Simulation(nlohmann::json physics_parameters, nlohmann::json initial_conditions, nlohmann::json simulation_parameters, gsl_rng *random_generator)
+    : map(physics_parameters["wallTop"]["y"].get<double>(), physics_parameters["wallBottom"]["y"].get<double>(), physics_parameters["wallLeft"]["x"].get<double>(), physics_parameters["wallRight"]["x"].get<double>(), simulation_parameters["map_cell_size"].get<double>()),
+      wallDisk(physics_parameters["wallDisk"], &map),
+      wallTop(physics_parameters["wallTop"], &map),
+      wallBottom(physics_parameters["wallBottom"], &map),
+      wallLeft(physics_parameters["wallLeft"], &map),
+      wallRight(physics_parameters["wallRight"], &map)
 {
+    isWallDisk = physics_parameters["wallDisk"]["thickness"].get<double>() > 0;
+    isWallTop = physics_parameters["wallTop"]["thickness"].get<double>() > 0;
+
+    for (unsigned int i = 0; i < initial_conditions["cell"].size(); i++)
+        this->cell.push_back(Cell(physics_parameters["cell"], initial_conditions["cell"][i], simulation_parameters, random_generator, &map));
+
     this->n_errors = 0;
     this->random_generator = random_generator;
     this->delta_time_step = simulation_parameters["time_step"].get<double>();
     this->n_time_steps = simulation_parameters["n_time_steps"].get<double>();
     this->step_size = simulation_parameters["saved_time_step_size"].get<int>();
 
-    for (unsigned int i = 0; i < initial_conditions["wall"].size(); i++)
-        this->actor.push_back(std::make_shared<DiskWall>(physics_parameters["wall"], initial_conditions["wall"][i], simulation_parameters));
-    for (unsigned int i = 0; i < initial_conditions["cell"].size(); i++)
-        this->actor.push_back(std::make_shared<Cell>(physics_parameters["cell"], initial_conditions["cell"][i], simulation_parameters, random_generator));
     this->time_step = 1;
 }
 
@@ -26,19 +37,18 @@ int Simulation::compute_simulation()
 
 void Simulation::compute_next_step()
 {
-    std::vector<ActorForce> force(this->actor.size(), ActorForce{{0., 0.}, {0., 0.}});
-    for (unsigned int i = 0; i < this->actor.size(); i++)
-        for (unsigned int j = i + 1; j < this->actor.size(); j++)
-        {
-            ForceCouple couple = this->interaction(this->actor[i], this->actor[j]);
-            force[i] += couple.a;
-            force[j] += couple.b;
-        }
-    for (unsigned int i = 0; i < this->actor.size(); i++)
+    std::vector<CellForce> force(this->cell.size(), CellForce{{0., 0.}, {0., 0.}});
+    for (unsigned int i = 0; i < this->cell.size(); i++)
+    {
+        std::set<Actor*> neighbours = map.check(&(this->cell[i]), this->cell[i].get_instance(this->time_step-1).coord);
+        for (std::set<Actor*>::iterator it=neighbours.begin(); it!=neighbours.end(); ++it)
+            force[i] += (*it)->interaction(&(this->cell[i]), this->time_step-1);
+    }
+    for (unsigned int i = 0; i < this->cell.size(); i++)
     {
         try
         {
-            this->actor[i]->compute_step(this->time_step, this->delta_time_step, force[i], &(this->n_errors));
+            this->cell[i].compute_step(this->time_step, this->delta_time_step, force[i], &(this->n_errors));
         }
         catch (std::string error)
         {
@@ -46,106 +56,17 @@ void Simulation::compute_next_step()
             strm << "Simulation error at time_step " << this->time_step << ": \n\t";
             strm << error << "\n";
             strm << "\nCell's previous saved state:\n"
-                 << this->actor[i]->state_to_string(this->time_step - 1);
+                 << this->cell[i].state_to_string(this->time_step - 1);
             throw strm.str();
         }
     }
-    for (unsigned int i = 0; i < this->actor.size(); i++)
-        this->actor[i]->update_state(this->time_step);
+    for (unsigned int i = 0; i < this->cell.size(); i++)
+        this->cell[i].update_state(this->time_step, &map);
 }
 
-ForceCouple Simulation::interaction(std::shared_ptr<Actor> actor1, std::shared_ptr<Actor> actor2) const
+std::vector<Cell> Simulation::get_cells() const
 {
-    DiskWall *diskWall1 = dynamic_cast<DiskWall *>(actor1.get());
-    Cell *cell1 = dynamic_cast<Cell *>(actor1.get());
-    Cell *cell2 = dynamic_cast<Cell *>(actor2.get());
-
-    if (diskWall1 && cell2)
-    {
-        WallInstance wallInstance1 = diskWall1->get_instance(this->time_step - 1);
-        CellInstance cellInstance2 = cell2->get_instance(this->time_step - 1);
-        Vector2D coord1[1], coord2[2], e[2];
-        double distance, force_modulus[2], size[2];
-
-        coord1[0] = wallInstance1.coord;
-        coord2[0] = cellInstance2.coord;
-        coord2[1] = cell2->get_flagella_coord(cellInstance2);
-
-
-        size[0] = cell2->get_body_radius();
-        size[1] = cell2->get_flagella_radius();
-
-        for (int i = 0; i < 2; i++)
-        {
-            Vector2D coord = coord2[i % 2] - coord1[0];
-            distance = coord.modulus();
-            if (distance > 0)
-            {
-                e[i] = coord / (-distance);
-                distance = diskWall1->get_inner_radius() - distance;
-                if (distance <= 0)
-                    force_modulus[i] = 10000.;
-                else if (distance < size[i] * 1.122462) // 2^(1/6)
-                {
-                    double rad_6 = pow(size[i], 6.);
-                    double dist_6 = pow(distance, 6.);
-                    force_modulus[i] = 24 * diskWall1->get_hardness() * (2 * rad_6 * rad_6 / (dist_6 * dist_6 * distance) - rad_6 / (dist_6 * distance));
-                }
-                else
-                    force_modulus[i] = 0;
-            }
-            else
-            {
-                e[i] = {0., 0.};
-                force_modulus[i] = 0;
-            }
-        }
-        ActorForce force1;
-        ActorForce force2(e[0] * force_modulus[0], e[1] * force_modulus[1]);
-        return {force1, force2};
-    }
-    else if (cell1 && cell2)
-    {
-        CellInstance cellInstance1 = cell1->get_instance(this->time_step - 1);
-        CellInstance cellInstance2 = cell2->get_instance(this->time_step - 1);
-        Vector2D coord1[2], coord2[2], e[4];
-        double distance, force_modulus[4], size[4];
-
-        coord1[0] = cellInstance1.coord;
-        coord1[1] = cell1->get_flagella_coord(cellInstance1);
-        coord2[0] = cellInstance2.coord;
-        coord2[1] = cell2->get_flagella_coord(cellInstance2);
-
-        size[0] = cell1->get_body_radius() + cell2->get_body_radius();
-        size[1] = cell1->get_body_radius() + cell2->get_flagella_radius();
-        size[2] = cell1->get_flagella_radius() + cell2->get_body_radius();
-        size[3] = cell1->get_flagella_radius() + cell2->get_flagella_radius();
-
-        for (int i = 0; i < 4; i++)
-        {
-            Vector2D coord = coord2[i % 2] - coord1[i / 2];
-            distance = coord.modulus();
-            e[i] = coord / distance;
-            if (distance < size[i] * 1.122462) // 2^(1/6)
-            {
-                double rad_6 = pow(size[i], 6.);
-                double dist_6 = pow(distance, 6.);
-                force_modulus[i] = 24 * 10. /* cell hardness */ * (2 * rad_6 * rad_6 / (dist_6 * dist_6 * distance) - rad_6 / (dist_6 * distance)); /////
-            }
-            else
-                force_modulus[i] = 0;
-        }
-        ActorForce force1(e[0] * (-force_modulus[0]) + e[1] * (-force_modulus[1]), e[2] * (-force_modulus[2]) + e[3] * (-force_modulus[3]));
-        ActorForce force2(e[0] * force_modulus[0] + e[2] * force_modulus[2], e[1] * force_modulus[1] + e[3] * force_modulus[3]);
-        return {force1, force2};
-    }
-    else
-        throw "Interaction not implemented";
-}
-
-std::vector<std::shared_ptr<Actor>> Simulation::get_actors() const
-{
-    return this->actor;
+    return this->cell;
 }
 
 double Simulation::get_delta_time_step() const
@@ -155,6 +76,15 @@ double Simulation::get_delta_time_step() const
 
 void Simulation::draw_frame(int time_step, Camera *camera) const
 {
-    for (unsigned int i = 0; i < this->actor.size(); i++)
-        this->actor[i]->draw(time_step, camera);
+    if (isWallDisk)
+        wallDisk.draw(time_step, camera);
+    if (isWallTop)
+    {
+        wallTop.draw(time_step, camera);
+        wallBottom.draw(time_step, camera);
+        wallLeft.draw(time_step, camera);
+        wallRight.draw(time_step, camera);
+    }
+    for (unsigned int i = 0; i < this->cell.size(); i++)
+        this->cell[i].draw(time_step, camera);
 }

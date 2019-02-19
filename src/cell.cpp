@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <sstream>
 
-Cell::Cell(nlohmann::json physics_parameters, nlohmann::json initial_conditions, nlohmann::json simulation_parameters, gsl_rng *random_generator)
+Cell::Cell(nlohmann::json physics_parameters, nlohmann::json initial_conditions, nlohmann::json simulation_parameters, gsl_rng *random_generator, Map *map)
 {
     this->throw_errors = simulation_parameters["throw_errors"];
     int memory_size = simulation_parameters["n_saved_time_steps"].get<int>();
@@ -43,16 +43,17 @@ Cell::Cell(nlohmann::json physics_parameters, nlohmann::json initial_conditions,
     this->next_instance.tumble_countdown = 0;
     this->next_instance.tumble_speed = 0.;
     this->next_instance.tumble_duration = 0.;
-    this->update_state(0);
+    this->prev_instance = this->next_instance;
+    this->instance[0] = this->prev_instance;
 }
 
-void Cell::compute_step(int now, double delta_time_step, ActorForce force, int *n_errors)
+void Cell::compute_step(int now, double delta_time_step, CellForce force, int *n_errors)
 {
     double sqrt_delta_time_step = sqrt(delta_time_step);
     Vector2D e_direction = {cos(this->prev_instance.direction), sin(this->prev_instance.direction)};
     double rotation = 0.;
 
-    Vector2D pos_force = (force[0] + force[1]) * this->diffusivity * delta_time_step;
+    Vector2D pos_force = (force.body + force.flagella) * this->diffusivity * delta_time_step;
 
     if (pos_force.square() > 1.)
     {
@@ -85,16 +86,18 @@ void Cell::compute_step(int now, double delta_time_step, ActorForce force, int *
     this->_rotate(rotation, e_direction);
 }
 
-void Cell::update_state(int now)
+void Cell::update_state(int now, Map *map)
 {
+    map->depart(this, this->prev_instance.coord);
     this->prev_instance = this->next_instance;
+    map->arrive(this, this->prev_instance.coord);
     this->instance[now / this->step_size] = this->prev_instance;
 }
 
-double Cell::_compute_torque(ActorForce force, Vector2D e_direction)
+double Cell::_compute_torque(CellForce force, Vector2D e_direction)
 {
-    double torque_body = -this->rotation_center * e_direction.cross(force[0]);
-    double torque_flagella = (this->body_flagella_distance - this->rotation_center) * e_direction.cross(force[1]);
+    double torque_body = -this->rotation_center * e_direction.cross(force.body);
+    double torque_flagella = (this->body_flagella_distance - this->rotation_center) * e_direction.cross(force.flagella);
     return torque_body + torque_flagella;
 }
 double Cell::_tumble(double delta_time_step)
@@ -145,6 +148,45 @@ void Cell::_rotate(double rotation, Vector2D e_direction)
         this->next_instance.coord += new_pos - pos;
     }
     this->next_instance.direction = this->prev_instance.direction + rotation;
+}
+
+CellForce Cell::interaction(Cell* cell, int now)
+{
+    CellInstance cellInstance1 = this->get_instance(now - 1);
+    CellInstance cellInstance2 = cell->get_instance(now - 1);
+
+    Vector2D coord1[2], coord2[2], e[4];
+
+    coord1[0] = cellInstance1.coord;
+    coord1[1] = this->get_flagella_coord(cellInstance1);
+    coord2[0] = cellInstance2.coord;
+    coord2[1] = cell->get_flagella_coord(cellInstance2);
+
+    double distance;
+    double force_modulus[4], size[4];
+
+    size[0] = this->get_body_radius() + cell->get_body_radius();
+    size[1] = this->get_body_radius() + cell->get_flagella_radius();
+    size[2] = this->get_flagella_radius() + cell->get_body_radius();
+    size[3] = this->get_flagella_radius() + cell->get_flagella_radius();
+
+    for (int i = 0; i < 4; i++)
+    {
+        Vector2D coord = coord2[i % 2] - coord1[i / 2];
+        distance = coord.modulus();
+        e[i] = coord / distance;
+
+        if (distance < size[i] * 1.122462) // 2^(1/6)
+        {
+            double rad_6 = pow(size[i], 6.);
+            double dist_6 = pow(distance, 6.);
+            force_modulus[i] = 24 * 10. * (2 * rad_6 * rad_6 / (dist_6 * dist_6 * distance) - rad_6 / (dist_6 * distance)); //cell hardness
+        }
+        else
+            force_modulus[i] = 0;
+    }
+    // CellForce force1(e[0] * (-force_modulus[0]) + e[1] * (-force_modulus[1]), e[2] * (-force_modulus[2]) + e[3] * (-force_modulus[3]));
+    return CellForce(e[0] * force_modulus[0] + e[2] * force_modulus[2], e[1] * force_modulus[1] + e[3] * force_modulus[3]);
 }
 
 double Cell::get_body_radius() const
