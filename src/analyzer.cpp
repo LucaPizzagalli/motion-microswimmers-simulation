@@ -8,6 +8,7 @@
 Analyzer::Analyzer(nlohmann::json simulation_parameters, nlohmann::json physics_parameters)
 {
     this->map_stats = simulation_parameters["compute_probability_map"].get<bool>();
+        this->time_step_size = simulation_parameters["time_step"].get<double>();
     if (this->map_stats)
     {
         this->map_width = simulation_parameters["probability_map_width"].get<int>();
@@ -27,11 +28,14 @@ Analyzer::Analyzer(nlohmann::json simulation_parameters, nlohmann::json physics_
     this->displacement_stats = simulation_parameters["compute_displacement"].get<bool>();
     if (this->displacement_stats)
     {
-        double memory_size = simulation_parameters["n_saved_time_steps"].get<int>();
-        this->time_step_size = simulation_parameters["time_step"].get<double>();
+        int memory_size = simulation_parameters["n_saved_time_steps"].get<int>();
         this->displacement = std::vector<double>(memory_size, 0);
         this->n_tracks = 0;
     }
+
+    this->save_trajectories = simulation_parameters["save_trajectory"].get<bool>();
+    if(this->save_trajectories)
+        this->step_size = simulation_parameters["saved_time_step_size"].get<int>();
 }
 
 void Analyzer::update_stats(Simulation *world, int start_time_step, int end_time_step, int step_size)
@@ -57,6 +61,12 @@ void Analyzer::update_stats(Simulation *world, int start_time_step, int end_time
                 this->displacement[time] += coord * coord;
             }
             this->n_tracks++;
+        }
+        if (this->save_trajectories)
+        {
+            std::stringstream strm;
+            strm << "output/" << i << "_trajectory.csv";
+            this->save_trajectory(strm.str().c_str(), &(cell[i]), start_time_step, end_time_step);
         }
     }
 }
@@ -182,5 +192,13 @@ void Analyzer::save_displacement(const std::string &file_name)
     std::ofstream out(file_name);
     for (unsigned int i = 0; i < this->displacement.size(); i++)
         out << this->time_step_size*i << "," << this->displacement[i] << "\n";
+    out.close();
+}
+
+void Analyzer::save_trajectory(const std::string &file_name, Cell* cell, int start_time_step, int end_time_step)
+{
+    std::ofstream out(file_name);
+    for (int i = start_time_step; i < end_time_step; i+=this->step_size)
+        out << this->time_step_size*i << "," << cell->get_instance(i).coord[0] << "," << cell->get_instance(i).coord[1] << "\n";
     out.close();
 }

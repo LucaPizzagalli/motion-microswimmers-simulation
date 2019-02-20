@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
 import numpy as np
 import math
 from scipy.optimize import curve_fit
@@ -59,30 +60,48 @@ def plot_displacement(filename):
     plt.savefig(filename[:-4] + '.png', bbox_inches='tight')
 
 
+def plot_trajectory(filename):
+    coord = np.loadtxt(filename, delimiter=',')
+    minx = min(coord[:, 1])
+    miny = min(coord[:, 2])
+    maxx = max(coord[:, 1])
+    maxy = max(coord[:, 2])
+    size = max(maxx-minx,maxy-miny)
+    fig = plt.figure(figsize=(8, 8), dpi=800, facecolor='w', edgecolor='k')
+    ax = fig.add_subplot(111)
+    ax.set_xlim(left=(maxx+minx-size)/2, right=(maxx+minx+size)/2)
+    ax.set_ylim(bottom=(maxy+miny-size)/2, top=(maxy+miny+size)/2)
+    ax.add_line(Line2D(coord[:, 1], coord[:, 2], linewidth=0.1))
+    plt.savefig(filename[:-4] + '.png', bbox_inches='tight')
+    plt.show()
+
 def plot_density(filename):
     probabilityMap = np.loadtxt(filename, delimiter=',')
     plt.imshow(probabilityMap, cmap='hot', interpolation='nearest')
     plt.savefig(filename[:-4] + '.png', bbox_inches='tight')
 
 
-def plot_traj(pos_x, pos_y):
-    minx = min(pos_x)
-    miny = min(pos_y)
-    maxx = max(pos_x)
-    maxy = max(pos_y)
+def plot_trajectory2(filename):
+    coord = np.loadtxt(filename, delimiter=',')
+    minx = min(coord[:, 1])
+    miny = min(coord[:, 2])
+    maxx = max(coord[:, 1])
+    maxy = max(coord[:, 2])
     size = max(maxx-minx,maxy-miny)
-    fig = plt.figure(figsize=(8, 8), dpi=80, facecolor='w', edgecolor='k')
+    fig = plt.figure(figsize=(8, 8), dpi=800, facecolor='w', edgecolor='k')
     ax = fig.add_subplot(111)
     ax.set_xlim(left=(maxx+minx-size)/2, right=(maxx+minx+size)/2)
     ax.set_ylim(bottom=(maxy+miny-size)/2, top=(maxy+miny+size)/2)
-    ax.scatter(pos_x, pos_y, [0.01]*len(pos_x))
+    ax.scatter(coord[:, 1], coord[:, 2], [0.01]*len(coord[:, 0]))
+    plt.savefig(filename[:-4] + '.png', bbox_inches='tight')
 
 
 def main():
     parser = argparse.ArgumentParser(description='Plots stuff')
-    parser.add_argument('-m', '--mapFile', action='store', default='', help='map propability file')
-    parser.add_argument('-r', '--radialFile', action='store', default='', help='radial probability file')
-    parser.add_argument('-d', '--displacementFile', action='store', default='', help='displacement probability file')
+    parser.add_argument('-m', '--mapFile', action='store', default='', help='plot map propability file')
+    parser.add_argument('-r', '--radialFile', action='store', default='', help='plot radial probability file')
+    parser.add_argument('-d', '--displacementFile', action='store', default='', help='plot displacement probability file')
+    parser.add_argument('-t', '--trajectoryFile', action='store', default='', help='plot trajectory file')
     args = parser.parse_args()
 
     # plot_force()
@@ -99,6 +118,10 @@ def main():
     if(len(args.displacementFile)>0):
         print('Creating displacement probability plot...')
         plot_displacement('output/' + args.displacementFile)
+
+    if(len(args.trajectoryFile)>0):
+        print('Creating trajectory plot...')
+        plot_trajectory('output/' + args.trajectoryFile)
 
 
 if __name__ == '__main__':

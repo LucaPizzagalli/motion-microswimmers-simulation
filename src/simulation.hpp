@@ -33,7 +33,6 @@ class Simulation
     WallLeft wallLeft;
     WallRight wallRight;
 
-
 public:
     Simulation(nlohmann::json physics_parameters, nlohmann::json initial_conditions, nlohmann::json simulation_parameters, gsl_rng *random_generator);
     void compute_next_step();

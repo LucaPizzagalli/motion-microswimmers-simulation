@@ -34,11 +34,12 @@ void WallBottom::draw(int time_step, Camera *camera) const
     double thickness = (this->y2 - this->y) / 2 * camera->zoom;
     for (int x = 0; x < SCREEN_WIDTH; x++)
         for (int y = (int)(middle_y - thickness); y <= (int)(middle_y + thickness) + 1; y++)
-        {
-            double fading = std::max(1 - (y - middle_y) * (y - middle_y) / (thickness * thickness), 0.);
-            camera->pixels[y][x][2] = int(camera->pixels[y][x][2] * (1 - fading) + 255 * fading);
-            camera->pixels[y][x][1] = int(camera->pixels[y][x][1] * (1 - fading) + 255 * fading);
-        }
+            if (x >= 0 && x < SCREEN_WIDTH && y >= 0 && y < SCREEN_HEIGHT)
+            {
+                double fading = std::max(1 - (y - middle_y) * (y - middle_y) / (thickness * thickness), 0.);
+                camera->pixels[y][x][2] = int(camera->pixels[y][x][2] * (1 - fading) + 255 * fading);
+                camera->pixels[y][x][1] = int(camera->pixels[y][x][1] * (1 - fading) + 255 * fading);
+            }
 }
 
 CellForce WallBottom::interaction(Cell *cell, int now)

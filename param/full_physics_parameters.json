@@ -53,29 +53,29 @@
             }
         },
         "wallTop": {
-            "y": -400.0,
-            "thickness": 5.0,
+            "y": -10000.0,
+            "thickness": 100.0,
             "wallInteraction": {
                 "hardness": 10
             }
         },
         "wallBottom": {
-            "y": 150.0,
-            "thickness": 5.0,
+            "y": 10000.0,
+            "thickness": 50.0,
             "wallInteraction": {
                 "hardness": 10
             }
         },
         "wallLeft": {
-            "x": -150.0,
-            "thickness": 5.0,
+            "x": -6100.0,
+            "thickness": 100.0,
             "wallInteraction": {
                 "hardness": 10
             }
         },
         "wallRight": {
-            "x": 150.0,
-            "thickness": 5.0,
+            "x": 6100.0,
+            "thickness": 100.0,
             "wallInteraction": {
                 "hardness": 10
             }
@@ -90,7 +90,8 @@
                         "y": 0.0
                     },
                     "separation": 15.0,
-                    "number": 16,
+                    "rows": 1,
+                    "columns": 1,
                     "direction": 0.0
                 }
             }

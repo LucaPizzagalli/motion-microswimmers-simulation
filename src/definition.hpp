@@ -1,8 +1,8 @@
 #ifndef DEFINITION_H
 #define DEFINITION_H
 
-#define SCREEN_HEIGHT 1000
-#define SCREEN_WIDTH 1000
+#define SCREEN_HEIGHT 1200
+#define SCREEN_WIDTH 1200
 
 #define SQRT_2 1.41421
 

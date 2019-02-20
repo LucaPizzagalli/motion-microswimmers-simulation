@@ -55,11 +55,11 @@ void Cell::compute_step(int now, double delta_time_step, CellForce force, int *n
 
     Vector2D pos_force = (force.body + force.flagella) * this->diffusivity * delta_time_step;
 
-    if (pos_force.square() > 1.)
+    if (pos_force.square() > 4.)
     {
         (*n_errors)++;
         printf("over delta_f: %f\n", pos_force.modulus());
-        pos_force /= pos_force.modulus();
+        pos_force /= pos_force.modulus() / 2.;
         if (this->throw_errors)
         {
             std::stringstream strm;
@@ -150,7 +150,7 @@ void Cell::_rotate(double rotation, Vector2D e_direction)
     this->next_instance.direction = this->prev_instance.direction + rotation;
 }
 
-CellForce Cell::interaction(Cell* cell, int now)
+CellForce Cell::interaction(Cell *cell, int now)
 {
     CellInstance cellInstance1 = this->get_instance(now - 1);
     CellInstance cellInstance2 = cell->get_instance(now - 1);
@@ -234,18 +234,19 @@ void Cell::draw(int time_step, Camera *camera) const
     radius = this->flagella_radius * camera->zoom;
     for (int x = (int)(center[0] - radius); x <= (int)(center[0] + radius) + 1; x++)
         for (int y = (int)(center[1] - radius); y <= (int)(center[1] + radius) + 1; y++)
-        {
-            double fading = std::max(1 - (center - Vector2D{(double)x, (double)y}).square() / (radius * radius), 0.);
-            if (this->instance[time_step / this->step_size].tumble_duration > 0)
+            if (x >= 0 && x < SCREEN_WIDTH && y >= 0 && y < SCREEN_HEIGHT)
             {
-                // int color = (int)(127.5 + tumble_speed[time_step/this->step_size] * 50);/////
-                // camera->pixels[y][x][1] = int(camera->pixels[y][x][1] * (1 - fading) + color * fading);
+                double fading = std::max(1 - (center - Vector2D{(double)x, (double)y}).square() / (radius * radius), 0.);
+                if (this->instance[time_step / this->step_size].tumble_duration > 0)
+                {
+                    // int color = (int)(127.5 + tumble_speed[time_step/this->step_size] * 50);/////
+                    // camera->pixels[y][x][1] = int(camera->pixels[y][x][1] * (1 - fading) + color * fading);
+                }
+                else
+                {
+                    int color = (int)(255 * std::max(0., 1 - this->instance[time_step / this->step_size].tumble_countdown / this->tumble_delay_mean));
+                    camera->pixels[y][x][0] = int(camera->pixels[y][x][0] * (1 - fading) + (255 - color) * fading);
+                    camera->pixels[y][x][2] = int(camera->pixels[y][x][2] * (1 - fading) + color * fading);
+                }
             }
-            else
-            {
-                int color = (int)(255 * std::max(0., 1 - this->instance[time_step / this->step_size].tumble_countdown / this->tumble_delay_mean));
-                camera->pixels[y][x][0] = int(camera->pixels[y][x][0] * (1 - fading) + (255 - color) * fading);
-                camera->pixels[y][x][2] = int(camera->pixels[y][x][2] * (1 - fading) + color * fading);
-            }
-        }
 }

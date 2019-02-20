@@ -43,9 +43,39 @@
                 }
             }
         },
-        "wall": {
-            "innerRadius": 100.0,
+        "wallDisk": {
+            "x": 0.0,
+            "y": 0.0,
+            "innerRadius": 50.0,
             "thickness": 5.0,
+            "wallInteraction": {
+                "hardness": 10
+            }
+        },
+        "wallTop": {
+            "y": -10000.0,
+            "thickness": 100.0,
+            "wallInteraction": {
+                "hardness": 10
+            }
+        },
+        "wallBottom": {
+            "y": 10000.0,
+            "thickness": 50.0,
+            "wallInteraction": {
+                "hardness": 10
+            }
+        },
+        "wallLeft": {
+            "x": -6100.0,
+            "thickness": 100.0,
+            "wallInteraction": {
+                "hardness": 10
+            }
+        },
+        "wallRight": {
+            "x": 6100.0,
+            "thickness": 100.0,
             "wallInteraction": {
                 "hardness": 10
             }
@@ -60,7 +90,8 @@
                         "y": 0.0
                     },
                     "separation": 15.0,
-                    "number": 16,
+                    "rows": 16,
+                    "columns": 10,
                     "direction": 0.0
                 }
             }

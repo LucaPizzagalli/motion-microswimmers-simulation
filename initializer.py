@@ -114,16 +114,17 @@ def generateinitialConditions(initialConditions):
         for index, element in enumerate(initialConditions[kind]):
             if 'grid' in element:
                 array = []
-                edge = int(math.sqrt(element['grid']['number']) + 0.5)
+                rows = element['grid']['rows']
+                columns = element['grid']['rows']
                 space = element['grid']['separation']
                 centerX = element['grid']['position']['x']
                 centerY = element['grid']['position']['y']
-                for i in range(edge):
-                    for j in range(edge):
+                for x in range(columns):
+                    for y in range(rows):
                         dictionary = {
                             'direction': element['grid']['direction']}
                         dictionary['position'] = {
-                            'x': centerX + (i - (edge-1)/2) * space, 'y': centerY + (j - (edge-1)/2) * space}
+                            'x': centerX + (x - (columns-1)/2) * space, 'y': centerY + (y - (rows-1)/2) * space}
                         array.append(dictionary)
                 del initialConditions[kind][index]
                 initialConditions[kind].extend(array)
@@ -204,6 +205,12 @@ if __name__ == '__main__':
     print('\n--- Running plotter script:')
     with open('./param/simulation_parameters.json') as f:
         simulationParameters = json.load(f)
+    with open('./param/simulation_parameters.json') as f:
+        simulationParameters = json.load(f)
+
+    if simulationParameters['save_trajectory']:
+        subprocess.run(['./plotter.py', '-t', '0_trajectory.csv'])
+
 
     for key, value in nameDict.items():
         for element in value:

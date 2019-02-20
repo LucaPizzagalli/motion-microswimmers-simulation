@@ -9,6 +9,7 @@ class Analyzer
 {
     bool map_stats;
     bool displacement_stats;
+    bool save_trajectories;
     std::vector <std::vector <double> > probability_map;
     std::vector <double> radial_probability_p;
     std::vector <double> radial_probability_r;
@@ -26,6 +27,7 @@ class Analyzer
     double size_cell_y;
     double near_wall_probability;
     double time_step_size;
+    int step_size;
 
 public:
     Analyzer(nlohmann::json simulation_parameters, nlohmann::json physics_parameters);
@@ -39,6 +41,7 @@ public:
     void save_radial_probability(const std::string &file_name);
     void save_near_wall_probability(const std::string &file_name);
     void save_displacement(const std::string &file_name);
+    void save_trajectory(const std::string &file_name, Cell* cell, int start_time_step, int end_time_step);
 };
 
 #endif
