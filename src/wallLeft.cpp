@@ -7,7 +7,8 @@ WallLeft::WallLeft(nlohmann::json physics_parameters, Map *map)
     this->x = physics_parameters["x"].get<double>();
     this->x2 = this->x - physics_parameters["thickness"].get<double>();
     this->hardness = physics_parameters["wallInteraction"]["hardness"].get<double>();
-    map->vertical(this, this->x);
+    if (physics_parameters["thickness"].get<double>() > 0)
+        map->vertical(this, this->x);
 }
 
 double WallLeft::get_x() const

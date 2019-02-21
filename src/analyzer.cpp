@@ -34,8 +34,7 @@ Analyzer::Analyzer(nlohmann::json simulation_parameters, nlohmann::json physics_
     }
 
     this->save_trajectories = simulation_parameters["save_trajectory"].get<bool>();
-    if(this->save_trajectories)
-        this->step_size = simulation_parameters["saved_time_step_size"].get<int>();
+    this->step_size = simulation_parameters["saved_time_step_size"].get<int>();
 }
 
 void Analyzer::update_stats(Simulation *world, int start_time_step, int end_time_step, int step_size)
@@ -58,7 +57,7 @@ void Analyzer::update_stats(Simulation *world, int start_time_step, int end_time
             for (int time = start_time_step; time < end_time_step; time += step_size)
             {
                 Vector2D coord = cell[i].get_instance(time).coord;
-                this->displacement[time] += coord * coord;
+                this->displacement[time/step_size] += coord * coord;
             }
             this->n_tracks++;
         }
@@ -191,7 +190,7 @@ void Analyzer::save_displacement(const std::string &file_name)
 {
     std::ofstream out(file_name);
     for (unsigned int i = 0; i < this->displacement.size(); i++)
-        out << this->time_step_size*i << "," << this->displacement[i] << "\n";
+        out << this->time_step_size*(this->step_size*(i+1)-1) << "," << this->displacement[i] << "\n";
     out.close();
 }
 
@@ -199,6 +198,6 @@ void Analyzer::save_trajectory(const std::string &file_name, Cell* cell, int sta
 {
     std::ofstream out(file_name);
     for (int i = start_time_step; i < end_time_step; i+=this->step_size)
-        out << this->time_step_size*i << "," << cell->get_instance(i).coord[0] << "," << cell->get_instance(i).coord[1] << "\n";
+        out << this->time_step_size*(i+this->step_size-1) << "," << cell->get_instance(i).coord[0] << "," << cell->get_instance(i).coord[1] << "\n";
     out.close();
 }

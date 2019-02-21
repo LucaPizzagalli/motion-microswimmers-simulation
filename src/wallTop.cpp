@@ -7,7 +7,8 @@ WallTop::WallTop(nlohmann::json physics_parameters, Map *map)
     this->y = physics_parameters["y"].get<double>();
     this->y2 = this->y - physics_parameters["thickness"].get<double>();
     this->hardness = physics_parameters["wallInteraction"]["hardness"].get<double>();
-    map->horizontal(this, this->y);
+    if (physics_parameters["thickness"].get<double>() > 0)
+        map->horizontal(this, this->y);
 }
 
 double WallTop::get_y() const

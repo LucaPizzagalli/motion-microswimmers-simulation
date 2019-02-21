@@ -10,6 +10,13 @@ WallDisk::WallDisk(nlohmann::json physics_parameters, Map *map)
     this->coord = {
         physics_parameters["x"].get<double>(),
         physics_parameters["y"].get<double>()};
+    if (physics_parameters["thickness"].get<double>() > 0)
+        for (double x = this->coord[0] - this->inner_radius + 0.5; x <= this->coord[0] + this->inner_radius - 0.5; x += 1.)
+        {
+            double y = sqrt(this->inner_radius * this->inner_radius - x * x);
+            map->arrive(this, Vector2D{x, -y});
+            map->arrive(this, Vector2D{x, y});
+        }
 }
 
 Vector2D WallDisk::get_coord() const
@@ -53,7 +60,7 @@ void WallDisk::draw(int time_step, Camera *camera) const
         }
 }
 
-CellForce WallDisk::interaction(Cell* cell, int now)
+CellForce WallDisk::interaction(Cell *cell, int now)
 {
     Vector2D wallCoord = this->coord;
     CellInstance cellInstance = cell->get_instance(now);

@@ -27,7 +27,7 @@ Visualization::Visualization()
 	this->font = TTF_OpenFont("font.ttf", 18);
 	if (this->font == NULL)
 		printf("Failed to load lazy font! SDL_ttf Error: %s\n", TTF_GetError());
-	this->camera.zoom = 0.03;
+	this->camera.zoom = 1.;
 	this->camera.coord = Vector2D(-SCREEN_WIDTH, -SCREEN_HEIGHT) / (2. * this->camera.zoom);
 
 	this->render_rectangle.x = 0;

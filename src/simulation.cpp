@@ -2,11 +2,8 @@
 #include <gsl/gsl_randist.h>
 #include <sstream>
 
-#include <iostream>/////
-
-
 Simulation::Simulation(nlohmann::json physics_parameters, nlohmann::json initial_conditions, nlohmann::json simulation_parameters, gsl_rng *random_generator)
-    : map(physics_parameters["wallTop"]["y"].get<double>(), physics_parameters["wallBottom"]["y"].get<double>(), physics_parameters["wallLeft"]["x"].get<double>(), physics_parameters["wallRight"]["x"].get<double>(), simulation_parameters["map_cell_size"].get<double>()),
+    : map(physics_parameters["wallTop"]["y"].get<double>(), physics_parameters["wallBottom"]["y"].get<double>(), physics_parameters["wallLeft"]["x"].get<double>(), physics_parameters["wallRight"]["x"].get<double>(), physics_parameters["wallDisk"]["thickness"].get<double>() > 0 || physics_parameters["wallTop"]["thickness"].get<double>() > 0 ? simulation_parameters["map_cell_size"].get<double>() : 0.),
       wallDisk(physics_parameters["wallDisk"], &map),
       wallTop(physics_parameters["wallTop"], &map),
       wallBottom(physics_parameters["wallBottom"], &map),
@@ -40,9 +37,9 @@ void Simulation::compute_next_step()
     std::vector<CellForce> force(this->cell.size(), CellForce{{0., 0.}, {0., 0.}});
     for (unsigned int i = 0; i < this->cell.size(); i++)
     {
-        std::set<Actor*> neighbours = map.check(&(this->cell[i]), this->cell[i].get_instance(this->time_step-1).coord);
-        for (std::set<Actor*>::iterator it=neighbours.begin(); it!=neighbours.end(); ++it)
-            force[i] += (*it)->interaction(&(this->cell[i]), this->time_step-1);
+        std::set<Actor *> neighbours = map.check(&(this->cell[i]), this->cell[i].get_instance(this->time_step - 1).coord);
+        for (std::set<Actor *>::iterator it = neighbours.begin(); it != neighbours.end(); ++it)
+            force[i] += (*it)->interaction(&(this->cell[i]), this->time_step - 1);
     }
     for (unsigned int i = 0; i < this->cell.size(); i++)
     {

@@ -211,10 +211,22 @@ if __name__ == '__main__':
     if simulationParameters['save_trajectory']:
         subprocess.run(['./plotter.py', '-t', '0_trajectory.csv'])
 
+    # for key, value in nameDict.items():
+    #     for element in value:
+    #         if simulationParameters['compute_probability_map']:
+    #             subprocess.run(['./plotter.py', '-m', element[:-5] + '_probability_map.csv', '-r', element[:-5] + '_radial_probability.csv'])
+    #         if simulationParameters['compute_displacement']:
+    #             subprocess.run(['./plotter.py', '-d', element[:-5] + '_displacement.csv'])
 
     for key, value in nameDict.items():
-        for element in value:
-            if simulationParameters['compute_probability_map']:
-                subprocess.run(['./plotter.py', '-m', element[:-5] + '_probability_map.csv', '-r', element[:-5] + '_radial_probability.csv'])
-            if simulationParameters['compute_displacement']:
-                subprocess.run(['./plotter.py', '-d', element[:-5] + '_displacement.csv'])
+        if simulationParameters['compute_probability_map']:
+            radialProbabilityFile = []
+            for element in value:
+                radialProbabilityFile.append(element[:-5] + '_radial_probability.csv')
+                subprocess.run(['./plotter.py', '-m', element[:-5] + '_probability_map.csv'])
+            subprocess.run(['./plotter.py', '-ra'] + radialProbabilityFile)
+        if simulationParameters['compute_displacement']:
+            displacementFile = []
+            for element in value:
+                displacementFile.append(element[:-5] + '_displacement.csv')
+            subprocess.run(['./plotter.py', '-da'] + displacementFile)

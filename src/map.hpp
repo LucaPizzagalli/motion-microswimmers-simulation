@@ -14,6 +14,7 @@ class Map
     double left;
     int height;
     int width;
+    bool isMapping;
 
     public:
     Map(double top, double bottom, double left, double right, double cell_size);

@@ -31,7 +31,7 @@
                 }
             },
             "fluidCellInteraction": {
-                "diffusivity": 250.0,
+                "diffusivity": [1.0, 10.0, 250.0, 1000.0],
                 "shearTime": 0.15
             },
             "noise": {
@@ -46,7 +46,7 @@
         "wallDisk": {
             "x": 0.0,
             "y": 0.0,
-            "innerRadius": 50.0,
+            "innerRadius": 100.0,
             "thickness": 5.0,
             "wallInteraction": {
                 "hardness": 10
@@ -54,28 +54,28 @@
         },
         "wallTop": {
             "y": -10000.0,
-            "thickness": 100.0,
+            "thickness": 0.0,
             "wallInteraction": {
                 "hardness": 10
             }
         },
         "wallBottom": {
             "y": 10000.0,
-            "thickness": 50.0,
+            "thickness": 0.0,
             "wallInteraction": {
                 "hardness": 10
             }
         },
         "wallLeft": {
             "x": -6100.0,
-            "thickness": 100.0,
+            "thickness": 0.0,
             "wallInteraction": {
                 "hardness": 10
             }
         },
         "wallRight": {
             "x": 6100.0,
-            "thickness": 100.0,
+            "thickness": 0.0,
             "wallInteraction": {
                 "hardness": 10
             }

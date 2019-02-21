@@ -2,18 +2,18 @@
     "unitOfMeasure": {
         "time": "second"
     },
-    "visualization": true,
-    "n_simulations": 1,
-    "duration": 10,
-    "time_step": 1e-4,
+    "visualization": false,
+    "n_simulations": 100,
+    "duration": 100,
+    "time_step": 1e-5,
     "random_seed": 5,
     "saved_time_step": 1e-3,
     "throw_errors": false,
-    "compute_probability_map": false,
+    "compute_probability_map": true,
     "probability_map_width": 800,
     "probability_map_height": 800,
-    "compute_displacement": false,
-    "n_threads": 1,
+    "compute_displacement": true,
+    "n_threads": 5,
     "map_cell_size": 20.0,
-    "save_trajectory": true
+    "save_trajectory": false
 }
