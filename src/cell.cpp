@@ -15,7 +15,7 @@ Cell::Cell(nlohmann::json physics_parameters, nlohmann::json initial_conditions,
     nlohmann::json shape = physics_parameters["shape"];
     this->body_radius = shape["body"]["radius"].get<double>();
     this->flagella_radius = shape["flagella"]["radius"].get<double>();
-    this->body_flagella_distance = shape["BodyFlagellaDistance"].get<double>();
+    this->body_flagella_distance = std::max(this->body_radius, this->flagella_radius);
     this->rotation_center = shape["rotationCenter"].get<double>();
 
     this->speed = physics_parameters["propulsion"]["speed"].get<double>();
@@ -58,7 +58,6 @@ void Cell::compute_step(int now, double delta_time_step, CellForce force, int *n
     if (pos_force.square() > 4.)
     {
         (*n_errors)++;
-        printf("over delta_f: %f\n", pos_force.modulus());
         pos_force /= pos_force.modulus() / 2.;
         if (this->throw_errors)
         {
@@ -239,8 +238,8 @@ void Cell::draw(int time_step, Camera *camera) const
                 double fading = std::max(1 - (center - Vector2D{(double)x, (double)y}).square() / (radius * radius), 0.);
                 if (this->instance[time_step / this->step_size].tumble_duration > 0)
                 {
-                    // int color = (int)(127.5 + tumble_speed[time_step/this->step_size] * 50);/////
-                    // camera->pixels[y][x][1] = int(camera->pixels[y][x][1] * (1 - fading) + color * fading);
+                    int color = (int)(127.5 + this->instance[time_step/this->step_size].tumble_speed * 50);/////
+                    camera->pixels[y][x][1] = int(camera->pixels[y][x][1] * (1 - fading) + color * fading);
                 }
                 else
                 {

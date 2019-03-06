@@ -89,9 +89,9 @@ void Analyzer::compute_displacement()
 
 void Analyzer::compute_radial_probability(double center_x, double center_y)
 {
-    double delta_r = 0.5;
     int n_points = (int)(this->wall_radius / std::max(this->size_cell_x, this->size_cell_y));
     double d_r = this->wall_radius / n_points;
+    double delta_r = 5*d_r;
     int n_local_points = (int)(delta_r / d_r + 0.5);
     std::vector<double> local_p = std::vector<double>(n_points, 0);
     this->radial_probability_r = std::vector<double>(n_points - n_local_points + 1, 0);

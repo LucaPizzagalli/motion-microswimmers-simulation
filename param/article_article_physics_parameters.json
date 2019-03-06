@@ -8,16 +8,15 @@
         "cell": {
             "shape": {
                 "body": {
-                    "radius": [2.5, 5.0]
-                },
-                "flagella": {
                     "radius": 5.0
                 },
-                "BodyFlagellaDistance": 5.0,
-                "rotationCenter": [2.5, 0]
+                "flagella": {
+                    "radius": 7.5
+                },
+                "rotationCenter": 0.0
             },
             "propulsion": {
-                "speed": 100.0,
+                "speed": 80.0,
                 "tumble": {
                     "strength": {
                         "mean": 1.57079632679,
@@ -31,39 +30,53 @@
                 }
             },
             "fluidCellInteraction": {
-                "diffusivity": 250.0,
-                "persistenceTime": 2.0,
+                "diffusivity": 20.0,
                 "shearTime": 0.15
             },
             "noise": {
-                "position": {
+                "force": {
                     "strength": 1.0
                 },
-                "direction": {
-                    "strength": 2.0
+                "torque": {
+                    "strength": 0.5
                 }
             }
         },
-        "wall": {
-            "innerRadius": [25.0, 50.0, 75.0, 100.0, 125.0, 150.0, 250.0, 500.0],
+        "wallDisk": {
+            "x": 0.0,
+            "y": 0.0,
+            "innerRadius": 100.0,
             "thickness": 5.0,
             "wallInteraction": {
                 "hardness": 10
             }
-        }
-    },
-    "initialConditions": {
-        "cell": {
-            "position": {
-                "x": 0.0,
-                "y": 0.0
-            },
-            "direction": 0.0
         },
-        "wall": {
-            "position": {
-                "x": 0.0,
-                "y": 0.0
+        "wallTop": {
+            "y": -10000.0,
+            "thickness": 0.0,
+            "wallInteraction": {
+                "hardness": 10
+            }
+        },
+        "wallBottom": {
+            "y": 10000.0,
+            "thickness": 0.0,
+            "wallInteraction": {
+                "hardness": 10
+            }
+        },
+        "wallLeft": {
+            "x": -6100.0,
+            "thickness": 0.0,
+            "wallInteraction": {
+                "hardness": 10
+            }
+        },
+        "wallRight": {
+            "x": 6100.0,
+            "thickness": 0.0,
+            "wallInteraction": {
+                "hardness": 10
             }
         }
     }

@@ -3,17 +3,19 @@
         "time": "second"
     },
     "visualization": false,
-    "n_simulations": 100,
+    "n_simulations": 1000,
     "duration": 100,
-    "time_step": 1e-5,
+    "time_step": 1e-4,
     "random_seed": 5,
     "saved_time_step": 1e-3,
     "throw_errors": false,
+    "compute_displacement": true,
     "compute_probability_map": true,
     "probability_map_width": 800,
     "probability_map_height": 800,
-    "compute_displacement": true,
     "n_threads": 5,
     "map_cell_size": 20.0,
+    "plot_probability_map": false,
+    "plot_radial_probability": true,
     "save_trajectory": false
 }

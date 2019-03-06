@@ -8,30 +8,29 @@
         "cell": {
             "shape": {
                 "body": {
-                    "radius": 2.5
-                },
-                "flagella": {
                     "radius": 5.0
                 },
-                "BodyFlagellaDistance": 5.0,
-                "rotationCenter": 2.5
+                "flagella": {
+                    "radius": 7.5
+                },
+                "rotationCenter": 0.0
             },
             "propulsion": {
-                "speed": 100.0,
+                "speed": 80.0,
                 "tumble": {
                     "strength": {
-                        "mean": 1.57079632679,
-                        "std": 0.1
+                        "mean": 0.75,
+                        "std": 0.75
                     },
                     "duration": {
-                        "mean": 0.0,
-                        "std": 0.0
+                        "mean": 2.0,
+                        "std": 1.5
                     },
-                    "delay": 2.0
+                    "delay": 11.2
                 }
             },
             "fluidCellInteraction": {
-                "diffusivity": 250.0,
+                "diffusivity": 20.0,
                 "shearTime": 0.15
             },
             "noise": {
@@ -80,5 +79,21 @@
                 "hardness": 10
             }
         }
+    },
+    "initialConditions": {
+        "cell": [
+            {
+                "grid": {
+                    "position": {
+                        "x": 0.0,
+                        "y": 0.0
+                    },
+                    "separation": 15.0,
+                    "rows": 1,
+                    "columns": 1,
+                    "direction": 0.0
+                }
+            }
+        ]
     }
 }
