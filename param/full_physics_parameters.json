@@ -8,7 +8,7 @@
         "cell": {
             "shape": {
                 "body": {
-                    "radius": 5
+                    "radius": 5.0
                 },
                 "flagella": {
                     "radius": 7.5
@@ -16,14 +16,14 @@
                 "rotationCenter": 0.0
             },
             "propulsion": {
-                "speed": ["$v_0$", 80,90],
+                "speed": 80.0,
                 "tumble": {
                     "strength": {
                         "mean": 0.75,
                         "std": 0.75
                     },
                     "duration": {
-                        "mean": 2.0,
+                        "mean": ["$t_{tumble}$", 2],
                         "std": 1.5
                     },
                     "delay": 11.2
@@ -45,7 +45,7 @@
         "wallDisk": {
             "x": 0.0,
             "y": 0.0,
-            "innerRadius": 100.0,
+            "innerRadius": 100,
             "thickness": 5.0,
             "wallInteraction": {
                 "hardness": 10

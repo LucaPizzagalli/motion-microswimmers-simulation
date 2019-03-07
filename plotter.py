@@ -66,9 +66,14 @@ def plot_radial_probability_all(filenames):
     plt.gca().set_prop_cycle(plt.cycler('color', plt.cm.jet(np.linspace(0.1, 0.9, len(filenames)))))
     for filename in filenames:
         radialProbability = np.loadtxt(filename, delimiter=',')
-        plt.plot(radialProbability[:, 0], radialProbability[:, 1], label=filename[7:].split('*')[0])
+        plt.plot(radialProbability[:, 0], radialProbability[:, 1], alpha=0.7, label=filename[7:].split('*')[0])
         plt.legend()
-    filename = filename.split(' = ')[0] + filename[:-4].split(' * ')[1] + '.pdf'    
+    filename = filename.split(' = ')[0] + filename[:-4].split(' * ')[1] + '.png'
+    filename = filename.replace('\\','')
+    filename = filename.replace('$','')
+    filename = filename.replace('{','')
+    filename = filename.replace('}','')
+    filename = filename.replace(' ','')
     plt.savefig(filename, bbox_inches='tight')
 
 
@@ -111,9 +116,14 @@ def plot_displacement_all(filenames):
             i += 1
         time.append(displacement[:, 0][-1])
         disp.append(sum(displacement[:, 1][100 + int(pow(1.05, (i-1))) :])/(len(displacement[:, 1]) - int(pow(1.05, (i-1)))))
-        plt.plot(time, disp, label=filename[7:].split('*')[0])
+        plt.plot(time, disp, alpha=0.7, label=filename[7:].split('*')[0])
         plt.legend()
-    filename = filename.split(' = ')[0] + filename[:-4].split(' * ')[1] + '.pdf'
+    filename = filename.split(' = ')[0] + filename[:-4].split(' * ')[1] + '.png'
+    filename = filename.replace('\\','')
+    filename = filename.replace('$','')
+    filename = filename.replace('{','')
+    filename = filename.replace('}','')
+    filename = filename.replace(' ','')
     plt.savefig(filename, bbox_inches='tight')
 
 

@@ -127,7 +127,7 @@ double Cell::_tumble(double delta_time_step)
 
             this->next_instance.tumble_duration = this->tumble_duration_mean + gsl_ran_gaussian(this->random_generator, this->tumble_duration_std);
         }
-        if (this->prev_instance.tumble_duration <= 0)
+        if (this->next_instance.tumble_duration <= 0)
             this->next_instance.tumble_speed = 0;
 
         rotation = this->next_instance.tumble_speed * delta_time_step;
