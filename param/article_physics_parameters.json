@@ -20,11 +20,11 @@
                 "tumble": {
                     "strength": {
                         "mean": 0.75,
-                        "std": 0.75
+                        "_std": 1.0
                     },
                     "duration": {
                         "mean": 2.0,
-                        "std": 1.5
+                        "_std": 0.75
                     },
                     "delay": 11.2
                 }

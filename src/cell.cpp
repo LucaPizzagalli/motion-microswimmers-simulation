@@ -23,9 +23,9 @@ Cell::Cell(nlohmann::json physics_parameters, nlohmann::json initial_conditions,
     nlohmann::json tumble = physics_parameters["propulsion"]["tumble"];
     this->tumble_delay_mean = tumble["delay"].get<double>();
     this->tumble_duration_mean = tumble["duration"]["mean"].get<double>();
-    this->tumble_duration_std = tumble["duration"]["std"].get<double>();
+    this->tumble_duration_std = this->tumble_duration_mean*tumble["duration"]["_std"].get<double>();
     this->tumble_strength_mean = tumble["strength"]["mean"].get<double>();
-    this->tumble_strength_std = tumble["strength"]["std"].get<double>();
+    this->tumble_strength_std = this->tumble_strength_mean*tumble["strength"]["_std"].get<double>();
 
     nlohmann::json fluid_interaction = physics_parameters["fluidCellInteraction"];
     this->diffusivity = fluid_interaction["diffusivity"].get<double>();
