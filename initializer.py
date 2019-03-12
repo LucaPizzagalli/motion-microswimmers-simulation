@@ -46,7 +46,7 @@ def generateinitialConditions(initialConditions):
             if 'grid' in element:
                 array = []
                 rows = element['grid']['rows']
-                columns = element['grid']['rows']
+                columns = element['grid']['columns']
                 space = element['grid']['separation']
                 centerX = element['grid']['position']['x']
                 centerY = element['grid']['position']['y']
@@ -110,12 +110,21 @@ def plotResults(allTrees):
         simulationParameters = json.load(f)
 
     if simulationParameters['save_trajectory']:
-        subprocess.run(['./plotter.py', '-t', '0_trajectory.csv'])
+        for treeList in allTrees:
+            for tree in treeList:
+                subprocess.run(['./plotter.py', '-t', tree[0] + '_trajectory.csv'])
+
+    # if simulationParameters['compute_diffusion']:
+    #     for treeList in allTrees:
+    #         for tree in treeList:
+    #             subprocess.run(['./plotter.py', '-di', tree[0] + '_diffusion.csv'])
 
     for treeList in allTrees:
         if simulationParameters['plot_probability_map']:
+            mapsFiles = []
             for tree in treeList:
-                subprocess.run(['./plotter.py', '-m', tree[0] + '_probability_map.csv'])
+                mapsFiles.append(tree[0] + '_probability_map.csv')
+            subprocess.run(['./plotter.py', '-ma'] + mapsFiles)
         if simulationParameters['plot_radial_probability']:
             radialProbabilityFile = []
             for tree in treeList:

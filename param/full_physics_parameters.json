@@ -16,26 +16,26 @@
                 "rotationCenter": 0.0
             },
             "propulsion": {
-                "speed": 80.0,
+                "speed": 70.0,
                 "tumble": {
                     "strength": {
                         "mean": 0.75,
                         "_std": 1.0
                     },
                     "duration": {
-                        "mean": ["$t_{tumble}$", 2],
+                        "mean": 2.0,
                         "_std": 0.75
                     },
                     "delay": 11.2
                 }
             },
             "fluidCellInteraction": {
-                "diffusivity": 20.0,
+                "diffusivity": 14.0,
                 "shearTime": 0.15
             },
             "noise": {
                 "force": {
-                    "strength": 1.0
+                    "strength": 1
                 },
                 "torque": {
                     "strength": 0.5
@@ -45,35 +45,35 @@
         "wallDisk": {
             "x": 0.0,
             "y": 0.0,
-            "innerRadius": 100,
-            "thickness": 5.0,
+            "innerRadius": ["T",0],
+            "thickness": 0.0,
             "wallInteraction": {
                 "hardness": 10
             }
         },
         "wallTop": {
-            "y": -10000.0,
+            "y": -1500.0,
             "thickness": 0.0,
             "wallInteraction": {
                 "hardness": 10
             }
         },
         "wallBottom": {
-            "y": 10000.0,
+            "y": 300.0,
             "thickness": 0.0,
             "wallInteraction": {
                 "hardness": 10
             }
         },
         "wallLeft": {
-            "x": -6100.0,
+            "x": -610.0,
             "thickness": 0.0,
             "wallInteraction": {
                 "hardness": 10
             }
         },
         "wallRight": {
-            "x": 6100.0,
+            "x": 610.0,
             "thickness": 0.0,
             "wallInteraction": {
                 "hardness": 10
@@ -88,7 +88,7 @@
                         "x": 0.0,
                         "y": 0.0
                     },
-                    "separation": 15.0,
+                    "separation": 30.0,
                     "rows": 1,
                     "columns": 1,
                     "direction": 0.0

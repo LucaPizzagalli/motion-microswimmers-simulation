@@ -45,6 +45,10 @@ Cell::Cell(nlohmann::json physics_parameters, nlohmann::json initial_conditions,
     this->next_instance.tumble_duration = 0.;
     this->prev_instance = this->next_instance;
     this->instance[0] = this->prev_instance;
+
+    this->_body_body_6 = pow(this->get_body_radius() * 2, 6.);
+    this->_body_flagella_6 = pow(this->get_body_radius() + this->get_flagella_radius(), 6.);
+    this->_flagella_flagella_6 = pow(this->get_flagella_radius() * 2, 6.);
 }
 
 void Cell::compute_step(int now, double delta_time_step, CellForce force, int *n_errors)
@@ -55,10 +59,10 @@ void Cell::compute_step(int now, double delta_time_step, CellForce force, int *n
 
     Vector2D pos_force = (force.body + force.flagella) * this->diffusivity * delta_time_step;
 
-    if (pos_force.square() > 4.)
+    if (pos_force.square() > 9.)
     {
         (*n_errors)++;
-        pos_force /= pos_force.modulus() / 2.;
+        pos_force /= pos_force.modulus() / 3.;
         if (this->throw_errors)
         {
             std::stringstream strm;
@@ -154,37 +158,54 @@ CellForce Cell::interaction(Cell *cell, int now)
     CellInstance cellInstance1 = this->get_instance(now - 1);
     CellInstance cellInstance2 = cell->get_instance(now - 1);
 
-    Vector2D coord1[2], coord2[2], e[4];
-
-    coord1[0] = cellInstance1.coord;
-    coord1[1] = this->get_flagella_coord(cellInstance1);
-    coord2[0] = cellInstance2.coord;
-    coord2[1] = cell->get_flagella_coord(cellInstance2);
+    Vector2D coord, e[4];
 
     double distance;
-    double force_modulus[4], size[4];
+    double force_modulus[4];
 
-    size[0] = this->get_body_radius() + cell->get_body_radius();
-    size[1] = this->get_body_radius() + cell->get_flagella_radius();
-    size[2] = this->get_flagella_radius() + cell->get_body_radius();
-    size[3] = this->get_flagella_radius() + cell->get_flagella_radius();
-
-    for (int i = 0; i < 4; i++)
+    coord = cellInstance2.coord - cellInstance1.coord;
+    distance = coord.modulus();
+    e[0] = coord / distance;
+    if (distance < (this->get_body_radius() + cell->get_body_radius()) * 1.122462) // 2^(1/6)
     {
-        Vector2D coord = coord2[i % 2] - coord1[i / 2];
-        distance = coord.modulus();
-        e[i] = coord / distance;
-
-        if (distance < size[i] * 1.122462) // 2^(1/6)
-        {
-            double rad_6 = pow(size[i], 6.);
-            double dist_6 = pow(distance, 6.);
-            force_modulus[i] = 24 * 10. * (2 * rad_6 * rad_6 / (dist_6 * dist_6 * distance) - rad_6 / (dist_6 * distance)); //cell hardness
-        }
-        else
-            force_modulus[i] = 0;
+        double dist_6 = pow(distance, 6.);
+        force_modulus[0] = 24 * 10. * (2 * this->_body_body_6 * this->_body_body_6 / (dist_6 * dist_6 * distance) - this->_body_body_6 / (dist_6 * distance)); //cell hardness
     }
-    // CellForce force1(e[0] * (-force_modulus[0]) + e[1] * (-force_modulus[1]), e[2] * (-force_modulus[2]) + e[3] * (-force_modulus[3]));
+    else
+        force_modulus[0] = 0;
+
+    coord = cell->get_flagella_coord(cellInstance2) - cellInstance1.coord;
+    distance = coord.modulus();
+    e[1] = coord / distance;
+    if (distance < (this->get_flagella_radius() + cell->get_body_radius()) * 1.122462) // 2^(1/6)
+    {
+        double dist_6 = pow(distance, 6.);
+        force_modulus[1] = 24 * 1. * (2 * this->_body_flagella_6 * this->_body_flagella_6 / (dist_6 * dist_6 * distance) - this->_body_flagella_6 / (dist_6 * distance)); //cell hardness
+    }
+    else
+        force_modulus[1] = 0;
+
+    coord = cellInstance2.coord - this->get_flagella_coord(cellInstance1);
+    distance = coord.modulus();
+    e[2] = coord / distance;
+    if (distance < (this->get_body_radius() + cell->get_flagella_radius()) * 1.122462) // 2^(1/6)
+    {
+        double dist_6 = pow(distance, 6.);
+        force_modulus[2] = 24 * 1. * (2 * this->_body_flagella_6 * this->_body_flagella_6 / (dist_6 * dist_6 * distance) - this->_body_flagella_6 / (dist_6 * distance)); //cell hardness
+    }
+    else
+        force_modulus[2] = 0;
+
+    coord = this->get_flagella_coord(cellInstance2) - this->get_flagella_coord(cellInstance1);
+    distance = coord.modulus();
+    e[3] = coord / distance;
+    if (distance < (this->get_flagella_radius() + cell->get_flagella_radius()) * 1.122462) // 2^(1/6)
+    {
+        double dist_6 = pow(distance, 6.);
+        force_modulus[3] = 24 * 1. * (2 * this->_flagella_flagella_6 * this->_flagella_flagella_6 / (dist_6 * dist_6 * distance) - this->_flagella_flagella_6 / (dist_6 * distance)); //cell hardness
+    }
+    else
+        force_modulus[3] = 0;
     return CellForce(e[0] * force_modulus[0] + e[2] * force_modulus[2], e[1] * force_modulus[1] + e[3] * force_modulus[3]);
 }
 
@@ -225,10 +246,11 @@ void Cell::draw(int time_step, Camera *camera) const
     double radius = this->body_radius * camera->zoom;
     for (int x = (int)(center[0] - radius); x <= (int)(center[0] + radius) + 1; x++)
         for (int y = (int)(center[1] - radius); y <= (int)(center[1] + radius) + 1; y++)
-        {
-            double fading = std::max(1 - (center - Vector2D{(double)x, (double)y}).square() / (radius * radius), 0.);
-            camera->pixels[y][x][1] = int(camera->pixels[y][x][1] * (1 - fading) + 255 * fading);
-        }
+            if (x >= 0 && x < SCREEN_WIDTH && y >= 0 && y < SCREEN_HEIGHT)
+            {
+                double fading = std::max(1 - (center - Vector2D{(double)x, (double)y}).square() / (radius * radius), 0.);
+                camera->pixels[y][x][1] = int(camera->pixels[y][x][1] * (1 - fading) + 255 * fading);
+            }
     center = (this->get_flagella_coord(instance) - camera->coord) * camera->zoom;
     radius = this->flagella_radius * camera->zoom;
     for (int x = (int)(center[0] - radius); x <= (int)(center[0] + radius) + 1; x++)

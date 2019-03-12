@@ -53,28 +53,28 @@
         },
         "wallTop": {
             "y": -15000.0,
-            "thickness": 0,
+            "thickness": 100.0,
             "wallInteraction": {
                 "hardness": 10
             }
         },
         "wallBottom": {
             "y": 4000.0,
-            "thickness": 0,
+            "thickness": 100.0,
             "wallInteraction": {
                 "hardness": 10
             }
         },
         "wallLeft": {
             "x": -2000.0,
-            "thickness": 0,
+            "thickness": 100.0,
             "wallInteraction": {
                 "hardness": 10
             }
         },
         "wallRight": {
             "x": 2000.0,
-            "thickness": 0,
+            "thickness": 100.0,
             "wallInteraction": {
                 "hardness": 10
             }

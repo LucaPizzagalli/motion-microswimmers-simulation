@@ -45,36 +45,36 @@
         "wallDisk": {
             "x": 0.0,
             "y": 0.0,
-            "innerRadius": 100.0,
+            "innerRadius": ["T",0,10,20,30,40,50,60],
             "thickness": 0.0,
             "wallInteraction": {
                 "hardness": 10
             }
         },
         "wallTop": {
-            "y": -15000.0,
-            "thickness": 0,
+            "y": -1500.0,
+            "thickness": 0.0,
             "wallInteraction": {
                 "hardness": 10
             }
         },
         "wallBottom": {
-            "y": 4000.0,
-            "thickness": 0,
+            "y": 300.0,
+            "thickness": 0.0,
             "wallInteraction": {
                 "hardness": 10
             }
         },
         "wallLeft": {
-            "x": -2000.0,
-            "thickness": 0,
+            "x": -610.0,
+            "thickness": 0.0,
             "wallInteraction": {
                 "hardness": 10
             }
         },
         "wallRight": {
-            "x": 2000.0,
-            "thickness": 0,
+            "x": 610.0,
+            "thickness": 0.0,
             "wallInteraction": {
                 "hardness": 10
             }
@@ -88,9 +88,9 @@
                         "x": 0.0,
                         "y": 0.0
                     },
-                    "separation": 1,
-                    "rows": 1,
-                    "columns": 1,
+                    "separation": 30.0,
+                    "rows": 100,
+                    "columns": 100,
                     "direction": 0.0
                 }
             }

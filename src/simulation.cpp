@@ -1,6 +1,7 @@
 #include "simulation.hpp"
 #include <gsl/gsl_randist.h>
 #include <sstream>
+#include <iostream>
 
 Simulation::Simulation(nlohmann::json physics_parameters, nlohmann::json initial_conditions, nlohmann::json simulation_parameters, gsl_rng *random_generator)
     : map(physics_parameters["wallTop"]["y"].get<double>(), physics_parameters["wallBottom"]["y"].get<double>(), physics_parameters["wallLeft"]["x"].get<double>(), physics_parameters["wallRight"]["x"].get<double>(), physics_parameters["wallDisk"]["thickness"].get<double>() > 0 || physics_parameters["wallTop"]["thickness"].get<double>() > 0 ? simulation_parameters["map_cell_size"].get<double>() : 0.),
@@ -28,7 +29,11 @@ Simulation::Simulation(nlohmann::json physics_parameters, nlohmann::json initial
 int Simulation::compute_simulation()
 {
     for (; this->time_step < this->n_time_steps; ++this->time_step)
+    {
         this->compute_next_step();
+        // if (this->time_step % 1000 == 0) ////
+        //     std::cout << (int)this->time_step << "\n";
+    }
     return this->n_errors;
 }
 

@@ -4,10 +4,10 @@ Map::Map(double top, double bottom, double left, double right, double cell_size)
 {
     this->isMapping = cell_size > 0;
     this->cell_size = cell_size;
-    this->top = top - cell_size;
-    this->left = left - cell_size;
-    this->height = 3 + (int)((bottom - top) / cell_size);
-    this->width = 3 + (int)((right - left) / cell_size);
+    this->top = top - cell_size*2;
+    this->left = left - cell_size*2;
+    this->height = 5 + (int)((bottom - top) / cell_size);
+    this->width = 5 + (int)((right - left) / cell_size);
     if (this->isMapping)
         this->cell = std::vector<std::set<Actor *>>(this->height * this->width);
     else

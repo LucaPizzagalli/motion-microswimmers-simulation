@@ -52,6 +52,8 @@ class Cell: public Actor
 
     std::vector<CellInstance> instance;
 
+    double _body_body_6, _body_flagella_6, _flagella_flagella_6;
+
   public:
     Cell(nlohmann::json physics_parameters, nlohmann::json initial_conditions, nlohmann::json simulation_parameters, gsl_rng *random_generator, Map *map);
     void compute_step(int now, double delta_time_step, CellForce force, int *n_errors);

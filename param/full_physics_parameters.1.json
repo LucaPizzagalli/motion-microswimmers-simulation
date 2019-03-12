@@ -19,7 +19,7 @@
                 "speed": ["$v_0$", 40,50,60,70,80,90,100,110,120],
                 "tumble": {
                     "strength": {
-                        "mean": 0.75,
+                        "mean": ["$<\\frac{T_t}{\\tau}>$", 0,0.2,0.4,0.8,1.6,3.2],
                         "_std": 1.0
                     },
                     "duration": {
@@ -35,7 +35,7 @@
             },
             "noise": {
                 "force": {
-                    "strength": 1.0
+                    "strength": 1
                 },
                 "torque": {
                     "strength": ["$\\frac{K_b T}{\\tau}$", 0.2,0.5,1,2,4,8]
@@ -46,7 +46,7 @@
             "x": 0.0,
             "y": 0.0,
             "innerRadius": ["R", 25,50,75,100,125,150,250,500],
-            "thickness": 0.0,
+            "thickness": 5.0,
             "wallInteraction": {
                 "hardness": 10
             }

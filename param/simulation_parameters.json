@@ -2,20 +2,23 @@
     "unitOfMeasure": {
         "time": "second"
     },
-    "visualization": true,
+    "visualization": false,
     "n_simulations": 100,
-    "duration": 100,
+    "duration": 1000,
     "time_step": 1e-4,
     "random_seed": 5,
     "saved_time_step": 1e-3,
     "throw_errors": false,
     "compute_displacement": true,
-    "compute_probability_map": true,
+    "compute_probability_map": false,
+    "compute_end_probability_map": false,
+    "compute_diffusion": false,
     "probability_map_width": 800,
     "probability_map_height": 800,
     "n_threads": 6,
     "map_cell_size": 20.0,
     "plot_probability_map": false,
-    "plot_radial_probability": true,
+    "plot_end_probability_map": false,
+    "plot_radial_probability": false,
     "save_trajectory": false
 }

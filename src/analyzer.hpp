@@ -10,10 +10,12 @@ class Analyzer
     bool map_stats;
     bool displacement_stats;
     bool save_trajectories;
-    std::vector <std::vector <double> > probability_map;
-    std::vector <double> radial_probability_p;
-    std::vector <double> radial_probability_r;
-    std::vector <double> displacement;
+    bool diffusion_stats;
+    bool end_map_stats;
+    std::vector<std::vector<double>> probability_map;
+    std::vector<double> radial_probability_p;
+    std::vector<double> radial_probability_r;
+    std::vector<double> displacement;
     double wall_radius;
     int map_width;
     int map_height;
@@ -28,8 +30,12 @@ class Analyzer
     double near_wall_probability;
     double time_step_size;
     int step_size;
+    int memory_size;
+    int probability_map_height;
+    std::vector<double> gradient;
+    std::vector<double> flux;
 
-public:
+  public:
     Analyzer(nlohmann::json simulation_parameters, nlohmann::json physics_parameters);
     void update_stats(Simulation *world, int start_time_step, int end_time_step, int step_size);
     void compute_stats();
@@ -41,7 +47,8 @@ public:
     void save_radial_probability(const std::string &file_name);
     void save_near_wall_probability(const std::string &file_name);
     void save_displacement(const std::string &file_name);
-    void save_trajectory(const std::string &file_name, Cell* cell, int start_time_step, int end_time_step);
+    void save_trajectory(const std::string &file_name, Cell *cell, int start_time_step, int end_time_step);
+    void save_diffusion(const std::string &file_name);
 };
 
 #endif
