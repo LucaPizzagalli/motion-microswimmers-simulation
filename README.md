@@ -1,5 +1,8 @@
 # swimmers-brownian-simulation
 
+![comparison between an actual mesurement of the cell motion and the simulation of the model](swimmers-brownian-simulation/comparison.gif)
+
+
 ## How to make it works
 Tested on linux ubuntu
 
@@ -23,6 +26,7 @@ The first step is to obtain the necessary libraries:
 ### Compile and run
 Build the project:
 - ```meson build```
+
 and run with:
 - ```./initializer.py```
 
