@@ -1,6 +1,6 @@
 # swimmers-brownian-simulation
 
-![comparison between an actual mesurement of the cell motion and the simulation of the model](https://raw.githubusercontent.com/LucaPizzagalli/swimmers-brownian-simulation/master/comparison.gif)
+![comparison between an actual mesurement of the cell motion and the simulation of the model](comparison.gif)
 
 
 ## How to make it works
