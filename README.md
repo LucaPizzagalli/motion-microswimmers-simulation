@@ -1,10 +1,13 @@
-# swimmers-brownian-simulation
+# Modelling microbial motion: the case of Chlamydomonas reinhardtii
 
 ![comparison between an actual mesurement of the cell motion and the simulation of the model](comparison.gif)
 
+##
+This is a numerical implementation of a mathematical model that represents the motion of the unicellular eukaryotic organism Chlamydomonas Reinhardtii. All the parameters of the model and the simulation can be found (and modified) in the folder "parameters". Slides briefly showing the model and the results of the simulation can be found [here](https://lucapizzagalli.github.io/Projects/Thesis/thesis_slides.html)
+
 
 ## How to make it works
-Tested on linux ubuntu
+Tested on linux ubuntu.
 
 ### Install libraries
 The first step is to obtain the necessary libraries:
