@@ -9,9 +9,9 @@ This is a numerical implementation of a mathematical model that represents the m
 ## How to make it works
 Tested on linux ubuntu.
 
-### Install libraries
+### Install dependencies
 The first step is to obtain the necessary libraries:
-
+ This is the official location of the Kaldi project. 
 #### GNU Scientific Library
 - obtain [GNU scientific library](www.gnu.org/software/gsl/doc/html/index.html)for generating random numbers:
   * on ubuntu you can maybe try: ```apt-get install libgsl0ldbl``` or ```apt-get install libgsl0-dev``` or ```apt-get install gsl-bin libgsl0-dev```
